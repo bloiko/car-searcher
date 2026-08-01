@@ -6,6 +6,4 @@ Write entries from evidence (the actual error, the actual fix), not a vague summ
 
 | Date | Tags | Summary | File |
 |---|---|---|---|
-| — | — | — | — |
-
-*(empty — nothing has broken yet)*
+| 2026-08-01 | subagent-self-report, process | Subagent reports disagreed about who wrote what in Car.java; the diff + an independent gate re-run resolved it, the reports never could have | [2026-08-01-subagent-self-report-mismatch.md](2026-08-01-subagent-self-report-mismatch.md) |
