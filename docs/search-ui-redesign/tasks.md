@@ -8,7 +8,7 @@ Linear: [BOH-19](https://linear.app/bohdanloiko/issue/BOH-19)
 
 | # | Task | Status | Reqs | PR |
 |---|---|---|---|---|
-| 1 | Add design-token CSS (light/dark custom properties, type scale, spacing) to `+page.svelte`; restyle `<h1>` and the existing form elements against the tokens — no structural changes yet | todo | R1.1 | |
+| 1 | Add design-token CSS (light/dark custom properties, type scale, spacing) to `+page.svelte`; restyle `<h1>` and the existing form elements against the tokens — no structural changes yet | in_progress | R1.1 |  |
 | 2 | Restructure header: search input first and visually primary, filter inputs moved into a collapsible drawer behind a "Filters" toggle button | todo | R1.2 | |
 | 3 | Add dismissible filter chips derived from the four filter `$state` values; dismissing a chip clears that filter | todo | R2.1, R2.2 | |
 | 4 | Replace the `<ul><li>` result list with a card grid; add the missing `mileage` field to the frontend `CarResult` type and render it | todo | R3.1 | |
