@@ -22,7 +22,7 @@ public final class CarIndexMapping {
                 .properties("price", floatType())
                 .properties("mileage", integer())
                 .properties("description", text())
-                .properties("photo_urls", keyword())
+                .properties("photoUrls", keyword())
                 .build();
     }
 
