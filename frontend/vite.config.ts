@@ -7,7 +7,13 @@ export default defineConfig(({ mode }) => ({
 		sveltekit({
 			compilerOptions: {
 				// Force runes mode for the project, except for libraries. Can be removed in svelte 6.
-				runes: ({ filename }) => filename.split(/[/\\]/).includes('node_modules') ? undefined : true
+				runes: ({ filename }) => filename.split(/[/\\]/).includes('node_modules') ? undefined : true,
+				// Vitest's module runner doesn't go through Vite's dev-time CSS injection
+				// (that relies on import.meta.hot, which isn't present outside the dev
+				// server), so component <style> blocks never reach the DOM under test
+				// unless Svelte inlines them into the JS output itself. Keep 'external'
+				// (a separate, cacheable .css file) for real dev/build.
+				css: mode === 'test' ? 'injected' : 'external'
 			},
 
 			// adapter-auto only supports some environments, see https://svelte.dev/docs/kit/adapter-auto for a list.
