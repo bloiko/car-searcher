@@ -6,6 +6,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.client.opensearch.OpenSearchClient;
+import org.opensearch.client.opensearch._types.FieldSort;
+import org.opensearch.client.opensearch._types.SortOptions;
+import org.opensearch.client.opensearch._types.SortOrder;
 import org.opensearch.client.opensearch._types.query_dsl.BoolQuery;
 import org.opensearch.client.opensearch._types.query_dsl.MultiMatchQuery;
 import org.opensearch.client.opensearch._types.query_dsl.Query;
@@ -41,7 +44,7 @@ class CarSearchServiceTest {
         when(openSearchClient.search(any(SearchRequest.class), eq(Car.class))).thenReturn(response);
         CarSearchService service = new CarSearchService(openSearchClient);
 
-        List<Car> results = service.search("reliable family suv", null);
+        List<Car> results = service.search("reliable family suv", null, null);
 
         ArgumentCaptor<SearchRequest> captor = ArgumentCaptor.forClass(SearchRequest.class);
         verify(openSearchClient).search(captor.capture(), eq(Car.class));
@@ -67,7 +70,7 @@ class CarSearchServiceTest {
         CarSearchService service = new CarSearchService(openSearchClient);
         CarSearchRequest.Filters filters = new CarSearchRequest.Filters(null, null, null, null);
 
-        service.search("reliable family suv", filters);
+        service.search("reliable family suv", filters, null);
 
         ArgumentCaptor<SearchRequest> captor = ArgumentCaptor.forClass(SearchRequest.class);
         verify(openSearchClient).search(captor.capture(), eq(Car.class));
@@ -84,7 +87,7 @@ class CarSearchServiceTest {
         CarSearchService service = new CarSearchService(openSearchClient);
         CarSearchRequest.Filters filters = new CarSearchRequest.Filters(null, 2018, null, null);
 
-        service.search("reliable family suv", filters);
+        service.search("reliable family suv", filters, null);
 
         ArgumentCaptor<SearchRequest> captor = ArgumentCaptor.forClass(SearchRequest.class);
         verify(openSearchClient).search(captor.capture(), eq(Car.class));
@@ -106,7 +109,7 @@ class CarSearchServiceTest {
         CarSearchService service = new CarSearchService(openSearchClient);
         CarSearchRequest.Filters filters = new CarSearchRequest.Filters(null, null, 50_000, null);
 
-        service.search("reliable family suv", filters);
+        service.search("reliable family suv", filters, null);
 
         ArgumentCaptor<SearchRequest> captor = ArgumentCaptor.forClass(SearchRequest.class);
         verify(openSearchClient).search(captor.capture(), eq(Car.class));
@@ -128,7 +131,7 @@ class CarSearchServiceTest {
         CarSearchService service = new CarSearchService(openSearchClient);
         CarSearchRequest.Filters filters = new CarSearchRequest.Filters(null, null, null, "Toyota");
 
-        service.search("reliable family suv", filters);
+        service.search("reliable family suv", filters, null);
 
         ArgumentCaptor<SearchRequest> captor = ArgumentCaptor.forClass(SearchRequest.class);
         verify(openSearchClient).search(captor.capture(), eq(Car.class));
@@ -150,7 +153,7 @@ class CarSearchServiceTest {
         CarSearchService service = new CarSearchService(openSearchClient);
         CarSearchRequest.Filters filters = new CarSearchRequest.Filters(30_000f, null, null, null);
 
-        service.search("reliable family suv", filters);
+        service.search("reliable family suv", filters, null);
 
         ArgumentCaptor<SearchRequest> captor = ArgumentCaptor.forClass(SearchRequest.class);
         verify(openSearchClient).search(captor.capture(), eq(Car.class));
@@ -171,6 +174,63 @@ class CarSearchServiceTest {
         RangeQuery priceRange = filterClause.range();
         assertThat(priceRange.field()).isEqualTo("price");
         assertThat(priceRange.lte().to(Float.class)).isEqualTo(30_000f);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void searchWithPriceAscSortAddsAscendingPriceSortClause() throws IOException {
+        SearchResponse<Car> response = mockResponseWithHits(List.of());
+        when(openSearchClient.search(any(SearchRequest.class), eq(Car.class))).thenReturn(response);
+        CarSearchService service = new CarSearchService(openSearchClient);
+
+        service.search("reliable family suv", null, "price_asc");
+
+        ArgumentCaptor<SearchRequest> captor = ArgumentCaptor.forClass(SearchRequest.class);
+        verify(openSearchClient).search(captor.capture(), eq(Car.class));
+        SearchRequest request = captor.getValue();
+
+        assertThat(request.sort()).hasSize(1);
+        SortOptions sortOption = request.sort().get(0);
+        assertThat(sortOption.isField()).isTrue();
+        FieldSort fieldSort = sortOption.field();
+        assertThat(fieldSort.field()).isEqualTo("price");
+        assertThat(fieldSort.order()).isEqualTo(SortOrder.Asc);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void searchWithMileageAscSortAddsAscendingMileageSortClause() throws IOException {
+        SearchResponse<Car> response = mockResponseWithHits(List.of());
+        when(openSearchClient.search(any(SearchRequest.class), eq(Car.class))).thenReturn(response);
+        CarSearchService service = new CarSearchService(openSearchClient);
+
+        service.search("reliable family suv", null, "mileage_asc");
+
+        ArgumentCaptor<SearchRequest> captor = ArgumentCaptor.forClass(SearchRequest.class);
+        verify(openSearchClient).search(captor.capture(), eq(Car.class));
+        SearchRequest request = captor.getValue();
+
+        assertThat(request.sort()).hasSize(1);
+        SortOptions sortOption = request.sort().get(0);
+        assertThat(sortOption.isField()).isTrue();
+        FieldSort fieldSort = sortOption.field();
+        assertThat(fieldSort.field()).isEqualTo("mileage");
+        assertThat(fieldSort.order()).isEqualTo(SortOrder.Asc);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void searchWithNullSortProducesNoSortClause() throws IOException {
+        SearchResponse<Car> response = mockResponseWithHits(List.of());
+        when(openSearchClient.search(any(SearchRequest.class), eq(Car.class))).thenReturn(response);
+        CarSearchService service = new CarSearchService(openSearchClient);
+
+        service.search("reliable family suv", null, null);
+
+        ArgumentCaptor<SearchRequest> captor = ArgumentCaptor.forClass(SearchRequest.class);
+        verify(openSearchClient).search(captor.capture(), eq(Car.class));
+
+        assertThat(captor.getValue().sort()).isEmpty();
     }
 
     /**

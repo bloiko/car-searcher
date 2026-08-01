@@ -15,6 +15,7 @@
 	let yearMin = $state('');
 	let mileageMax = $state('');
 	let make = $state('');
+	let sort = $state('');
 	let results = $state<CarResult[] | null>(null);
 	let loading = $state(false);
 	let error = $state('');
@@ -58,6 +59,7 @@
 			if (Object.keys(filters).length > 0) {
 				requestBody.filters = filters;
 			}
+			if (sort !== '') requestBody.sort = sort;
 
 			const response = await fetch('http://localhost:8080/api/cars/search', {
 				method: 'POST',
@@ -88,6 +90,13 @@
 		<input id="search-input" class="search-input" type="text" bind:value={query} />
 		<button type="submit" class="search-submit">Search</button>
 	</div>
+
+	<label for="sort-select" class="sort-label">Sort</label>
+	<select id="sort-select" class="sort-select" bind:value={sort}>
+		<option value="">Best match</option>
+		<option value="price_asc">Price: low to high</option>
+		<option value="mileage_asc">Mileage: low to high</option>
+	</select>
 
 	<button
 		type="button"
@@ -311,6 +320,24 @@
 	.search-submit {
 		align-self: stretch;
 		font-size: var(--text-lg);
+	}
+
+	.sort-label {
+		align-self: flex-start;
+	}
+
+	.sort-select {
+		align-self: flex-start;
+		font-family: var(--font-body);
+		font-size: var(--text-base);
+		color: var(--color-text);
+		background-color: var(--color-surface);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius);
+		padding-top: var(--space-2);
+		padding-bottom: var(--space-2);
+		padding-left: var(--space-3);
+		padding-right: var(--space-3);
 	}
 
 	.filters-toggle {
