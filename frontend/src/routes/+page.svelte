@@ -6,6 +6,7 @@
 		year: number;
 		price: number;
 		description: string;
+		photoUrls: string[];
 	};
 
 	let query = $state('');
@@ -62,6 +63,11 @@
 		<ul class="results">
 			{#each results as result (result.id)}
 				<li class="result">
+					{#if result.photoUrls.length > 0}
+						<img src={result.photoUrls[0]} alt="{result.make} {result.model}" class="thumbnail" />
+					{:else}
+						<img src="/placeholder-car.svg" alt="{result.make} {result.model} placeholder" class="thumbnail" />
+					{/if}
 					<h2>{result.make} {result.model} ({result.year})</h2>
 					<p class="price">${result.price}</p>
 					<p class="description">{result.description}</p>
