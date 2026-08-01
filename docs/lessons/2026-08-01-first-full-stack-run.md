@@ -1,0 +1,13 @@
+# First time running backend + frontend + a real OpenSearch together surfaced 3 more gaps
+
+Running the whole stack for the first time (native OpenSearch install, since there's no Docker on the dev machine — see `docs/lessons/2026-08-01-documents-silently-empty.md` for the most serious one). The other three, in order of how obviously they'd have blocked a real user:
+
+**1. No CORS configuration existed anywhere — fixed.** Frontend (`localhost:5173`) and backend (`localhost:8080`) are different origins; every fetch was blocked with a 403 on the OPTIONS preflight. Nothing catches this except an actual browser — a curl request to the backend, or a test that mocks `fetch` on the frontend side, both bypass real CORS enforcement entirely. Fixed with a `WebMvcConfigurer` scoped to `/api/**` and `http://localhost:5173` only.
+
+**2. Nothing creates the `cars` OpenSearch index — not fixed, flagged as BOH-18.** The app has never had a bootstrap step that ensures the index exists with `CarIndexMapping`'s schema before use. Every real run so far (including this one) required creating it by hand via a direct `PUT` to OpenSearch. Every existing test mocks the client, so "does the index actually get created" was never a question any test could ask.
+
+**3. `CarIndexMapping` declares `photo_urls` (snake_case); Jackson actually serializes `Car.photoUrls` as `photoUrls` (camelCase) — not fixed, flagged as BOH-19.** Indexed a real car and inspected the raw document: it's stored under `photoUrls`, not `photo_urls`. OpenSearch's dynamic mapping silently created a second, different field (`photoUrls`, auto-typed as `text` + `keyword` subfield) to hold the real data, while the explicitly-declared `photo_urls` keyword field sits empty and unused. Doesn't break anything *today* only because indexing and reading both go through the same Jackson camelCase path consistently — but the explicit mapping is dead code, and anything that ever queries/aggregates on `photo_urls` directly (as the mapping implies it should be able to) will silently find nothing.
+
+**Common thread:** every one of these is invisible to a test suite built entirely on mocking the OpenSearch client and mocking `fetch` on the frontend — which was the correct call given no Docker, but the cost is a real, demonstrated blind spot around anything that depends on actual third-party behavior (a library method, a browser's CORS enforcement, a real index's actual field names) rather than our own code's logic. Worth treating "run the full stack for real" as a periodic check, not a one-time proof, since these three sat invisible through several fully-reviewed, fully-tested PRs.
+
+**Tag:** `cors`, `index-bootstrap`, `field-name-mismatch`, `mocked-test-blind-spot`, `first-live-run`
