@@ -149,16 +149,16 @@
 </form>
 
 {#if loading}
-	<p>Searching…</p>
+	<p role="status" class="status-message">Searching…</p>
 {/if}
 
 {#if error}
-	<p role="alert">{error}</p>
+	<p role="alert" class="error-banner">{error}</p>
 {/if}
 
 {#if results !== null && !loading}
 	{#if results.length === 0}
-		<p>No results found.</p>
+		<p class="empty-state">No results found.</p>
 	{:else}
 		<div class="results">
 			{#each results as result (result.id)}
@@ -187,6 +187,9 @@
 		--color-border: #d6d3d1;
 		--color-primary: #b45309;
 		--color-primary-text: #ffffff;
+		--color-danger: #b91c1c;
+		--color-danger-bg: #fef2f2;
+		--color-danger-border: #fecaca;
 
 		--font-body: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 		--font-heading: Georgia, 'Times New Roman', serif;
@@ -214,6 +217,9 @@
 			--color-border: #44403c;
 			--color-primary: #f59e0b;
 			--color-primary-text: #1c1917;
+			--color-danger: #f87171;
+			--color-danger-bg: #451a1a;
+			--color-danger-border: #7f1d1d;
 		}
 	}
 
@@ -360,6 +366,64 @@
 		width: 1.25rem;
 		height: 1.25rem;
 		cursor: pointer;
+	}
+
+	.status-message {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
+		font-family: var(--font-body);
+		font-size: var(--text-base);
+		font-weight: 600;
+		color: var(--color-text-muted);
+		background-color: var(--color-surface);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius);
+		max-width: 40rem;
+		margin: 0 var(--space-4) var(--space-6);
+		padding: var(--space-4);
+	}
+
+	.status-message::before {
+		content: '';
+		width: 1rem;
+		height: 1rem;
+		border: 2px solid var(--color-border);
+		border-top-color: var(--color-primary);
+		border-radius: 50%;
+		animation: status-spin 0.8s linear infinite;
+	}
+
+	@keyframes status-spin {
+		to {
+			transform: rotate(360deg);
+		}
+	}
+
+	.empty-state {
+		font-family: var(--font-body);
+		font-size: var(--text-base);
+		color: var(--color-text-muted);
+		text-align: center;
+		max-width: 40rem;
+		margin: 0 var(--space-4) var(--space-6);
+		padding: var(--space-6) var(--space-4);
+		background-color: var(--color-surface);
+		border: 1px dashed var(--color-border);
+		border-radius: var(--radius);
+	}
+
+	.error-banner {
+		font-family: var(--font-body);
+		font-size: var(--text-base);
+		font-weight: 600;
+		color: var(--color-danger);
+		max-width: 40rem;
+		margin: 0 var(--space-4) var(--space-6);
+		padding: var(--space-4);
+		background-color: var(--color-danger-bg);
+		border: 1px solid var(--color-danger-border);
+		border-radius: var(--radius);
 	}
 
 	.results {

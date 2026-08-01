@@ -342,6 +342,25 @@ describe('search page', () => {
 		expect(bodyStyle.backgroundColor).not.toBe('rgba(0, 0, 0, 0)');
 	});
 
+	it('shows a status-role loading indicator while a search request is in flight', async () => {
+		vi.stubGlobal(
+			'fetch',
+			// A request that never resolves within the test's lifetime, so
+			// `loading` stays true long enough to assert against it.
+			vi.fn().mockReturnValue(new Promise(() => {}))
+		);
+
+		render(Page);
+
+		const input = screen.getByRole('textbox', { name: /search/i });
+		await fireEvent.input(input, { target: { value: 'suv' } });
+		await fireEvent.submit(input.closest('form')!);
+
+		await waitFor(() => {
+			expect(screen.getByRole('status')).not.toBeNull();
+		});
+	});
+
 	it('shows a dismissible chip for a set filter and clears that filter when the chip is dismissed', async () => {
 		render(Page);
 
