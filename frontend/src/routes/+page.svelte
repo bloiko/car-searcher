@@ -17,6 +17,7 @@
 	let results = $state<CarResult[] | null>(null);
 	let loading = $state(false);
 	let error = $state('');
+	let filtersOpen = $state(false);
 
 	async function handleSubmit(event: SubmitEvent) {
 		event.preventDefault();
@@ -58,37 +59,51 @@
 <h1>Car Search</h1>
 
 <form onsubmit={handleSubmit}>
-	<label for="search-input">Search</label>
-	<input id="search-input" type="text" bind:value={query} />
+	<label for="search-input" class="search-label">Search</label>
+	<div class="search-row">
+		<input id="search-input" class="search-input" type="text" bind:value={query} />
+		<button type="submit" class="search-submit">Search</button>
+	</div>
 
-	<label for="price-max-input">Max price</label>
-	<input
-		id="price-max-input"
-		type="number"
-		value={priceMax}
-		oninput={(e) => (priceMax = e.currentTarget.value)}
-	/>
+	<button
+		type="button"
+		class="filters-toggle"
+		aria-expanded={filtersOpen}
+		onclick={() => (filtersOpen = !filtersOpen)}
+	>
+		Filters
+	</button>
 
-	<label for="year-min-input">Min year</label>
-	<input
-		id="year-min-input"
-		type="number"
-		value={yearMin}
-		oninput={(e) => (yearMin = e.currentTarget.value)}
-	/>
+	{#if filtersOpen}
+		<div class="filters-drawer">
+			<label for="price-max-input">Max price</label>
+			<input
+				id="price-max-input"
+				type="number"
+				value={priceMax}
+				oninput={(e) => (priceMax = e.currentTarget.value)}
+			/>
 
-	<label for="mileage-max-input">Max mileage</label>
-	<input
-		id="mileage-max-input"
-		type="number"
-		value={mileageMax}
-		oninput={(e) => (mileageMax = e.currentTarget.value)}
-	/>
+			<label for="year-min-input">Min year</label>
+			<input
+				id="year-min-input"
+				type="number"
+				value={yearMin}
+				oninput={(e) => (yearMin = e.currentTarget.value)}
+			/>
 
-	<label for="make-input">Make</label>
-	<input id="make-input" type="text" bind:value={make} />
+			<label for="mileage-max-input">Max mileage</label>
+			<input
+				id="mileage-max-input"
+				type="number"
+				value={mileageMax}
+				oninput={(e) => (mileageMax = e.currentTarget.value)}
+			/>
 
-	<button type="submit">Search</button>
+			<label for="make-input">Make</label>
+			<input id="make-input" type="text" bind:value={make} />
+		</div>
+	{/if}
 </form>
 
 {#if loading}
@@ -179,7 +194,7 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--space-4);
-		max-width: 28rem;
+		max-width: 40rem;
 		margin: 0 var(--space-4) var(--space-6);
 		padding: var(--space-4);
 		background-color: var(--color-surface);
@@ -223,5 +238,46 @@
 		padding-left: var(--space-4);
 		padding-right: var(--space-4);
 		cursor: pointer;
+	}
+
+	/* The search input is the primary, most visually prominent control on the
+	   page: it sits first, is visually larger than the filter inputs, and
+	   shares a row with its submit button. The filter inputs stay visually
+	   secondary, tucked behind the "Filters" toggle in a collapsible drawer. */
+	.search-row {
+		display: flex;
+		align-items: flex-end;
+		gap: var(--space-3);
+	}
+
+	.search-input {
+		flex: 1;
+		font-size: var(--text-lg);
+		padding-top: var(--space-3);
+		padding-bottom: var(--space-3);
+		padding-left: var(--space-4);
+		padding-right: var(--space-4);
+	}
+
+	.search-submit {
+		align-self: stretch;
+		font-size: var(--text-lg);
+	}
+
+	.filters-toggle {
+		align-self: flex-start;
+		font-size: var(--text-sm);
+		font-weight: 600;
+		color: var(--color-text);
+		background-color: var(--color-surface);
+		border: 1px solid var(--color-border);
+	}
+
+	.filters-drawer {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-4);
+		padding-top: var(--space-4);
+		border-top: 1px solid var(--color-border);
 	}
 </style>
