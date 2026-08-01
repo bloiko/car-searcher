@@ -10,6 +10,7 @@ import org.opensearch.client.opensearch.core.IndexRequest;
 import org.opensearch.client.opensearch.core.IndexResponse;
 
 import java.io.IOException;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -27,7 +28,7 @@ class CarIndexingServiceTest {
     @SuppressWarnings("unchecked")
     void indexesCarUnderCarsIndexWithCarIdAsDocumentId() throws IOException {
         when(openSearchClient.index(any(IndexRequest.class))).thenReturn(mock(IndexResponse.class));
-        Car car = new Car("car-1", "Toyota", "Corolla", 2020, 18_999f, 32_000, "A reliable sedan");
+        Car car = new Car("car-1", "Toyota", "Corolla", 2020, 18_999f, 32_000, "A reliable sedan", List.of());
         CarIndexingService service = new CarIndexingService(openSearchClient);
 
         service.index(car);

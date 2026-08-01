@@ -18,7 +18,8 @@ class CarIndexMappingTest {
         // Matches docs/semantic-car-search/design.md's target "cars" index mapping,
         // minus description_vector (that field is a later task, not this one).
         assertThat(properties.keySet())
-                .containsExactlyInAnyOrder("id", "make", "model", "year", "price", "mileage", "description");
+                .containsExactlyInAnyOrder("id", "make", "model", "year", "price", "mileage", "description",
+                        "photo_urls");
 
         assertThat(properties.get("id").isKeyword()).isTrue();
         assertThat(properties.get("make").isKeyword()).isTrue();
@@ -27,5 +28,6 @@ class CarIndexMappingTest {
         assertThat(properties.get("price").isFloat()).isTrue();
         assertThat(properties.get("mileage").isInteger()).isTrue();
         assertThat(properties.get("description").isText()).isTrue();
+        assertThat(properties.get("photo_urls").isKeyword()).isTrue();
     }
 }

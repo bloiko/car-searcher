@@ -18,4 +18,16 @@
         <Class name="dev.bloiko.carsearcher.car.CarSearchService" />
         <Bug pattern="EI_EXPOSE_REP2" />
     </Match>
+    <!--
+      EI_EXPOSE_REP only, only for Car.photoUrls(). The compact constructor
+      assigns photoUrls = List.copyOf(photoUrls), so the field is already an
+      immutable list; SpotBugs cannot statically prove List.copyOf's result
+      is immutable and flags the accessor anyway. No defensive copy is
+      needed because there is nothing mutable to defend.
+    -->
+    <Match>
+        <Class name="dev.bloiko.carsearcher.car.Car" />
+        <Method name="photoUrls" />
+        <Bug pattern="EI_EXPOSE_REP" />
+    </Match>
 </FindBugsFilter>

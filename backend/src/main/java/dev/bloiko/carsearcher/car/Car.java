@@ -1,5 +1,7 @@
 package dev.bloiko.carsearcher.car;
 
+import java.util.List;
+
 /**
  * Car domain model. See docs/semantic-car-search/design.md for the field spec.
  */
@@ -10,7 +12,8 @@ public record Car(
         int year,
         float price,
         int mileage,
-        String description) {
+        String description,
+        List<String> photoUrls) {
 
     public Car {
         if (id == null || id.isBlank()) {
@@ -28,5 +31,14 @@ public record Car(
         if (mileage < 0) {
             throw new IllegalArgumentException("mileage must not be negative");
         }
+        if (photoUrls == null) {
+            photoUrls = List.of();
+        }
+        for (String photoUrl : photoUrls) {
+            if (photoUrl == null || photoUrl.isBlank()) {
+                throw new IllegalArgumentException("photoUrls must not contain blank entries");
+            }
+        }
+        photoUrls = List.copyOf(photoUrls);
     }
 }
