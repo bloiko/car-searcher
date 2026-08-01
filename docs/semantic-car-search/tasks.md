@@ -1,13 +1,13 @@
 # Semantic car search — tasks
 
-This table is the tracker the `implement` skill reads. Status is only ever changed by the coordinator after an independent `reviewer` pass confirms `REVIEW_CLEAN` — not by any agent's self-report.
+This table is the tracker the `implement` skill reads. Status is only ever changed by the coordinator after an independent `reviewer` pass confirms `REVIEW_CLEAN` — not by any agent's self-report. Each row is mirrored as a ticket in Linear (project: car-searcher, team BOH) — this file is still the tracker the workflow actually reads; the Linear ticket is the human-facing view, kept in sync manually for now.
 
-| # | Task | Status |
-|---|---|---|
-| 1 | `Car` domain model + OpenSearch index mapping (keyword search version) | todo |
-| 2 | `POST /api/cars` — index a listing | todo |
-| 3 | `POST /api/cars/search` — placeholder `multi_match` keyword search | todo |
-| 4 | SvelteKit search page calling the above | todo |
+| # | Task | Status | Linear |
+|---|---|---|---|
+| 1 | `Car` domain model + OpenSearch index mapping (keyword search version) | done | [BOH-5](https://linear.app/bohdanloiko/issue/BOH-5) |
+| 2 | `POST /api/cars` — index a listing | todo | [BOH-6](https://linear.app/bohdanloiko/issue/BOH-6) |
+| 3 | `POST /api/cars/search` — placeholder `multi_match` keyword search | todo | [BOH-7](https://linear.app/bohdanloiko/issue/BOH-7) |
+| 4 | SvelteKit search page calling the above | todo | [BOH-8](https://linear.app/bohdanloiko/issue/BOH-8) |
 
 Bootstrap already done directly (not through the TDD loop, since it's scaffolding rather than a task with a testable behavior): pom.xml, Spring Boot app skeleton, gate stack wired into the Maven build (PMD, SpotBugs, ArchUnit), local OpenSearch via `docker-compose.yml`.
 
