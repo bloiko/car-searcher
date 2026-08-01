@@ -1,5 +1,7 @@
 # Semantic car search — tasks
 
+Linear: all row tickets (BOH-5..8) are sub-issues of the feature parent, [BOH-11](https://linear.app/bohdanloiko/issue/BOH-11) — see BOH-10 for why (tasks.md holds one feature's subtasks; Linear should mirror that with sub-issues, not sibling top-level tickets).
+
 This table is the tracker the `implement` skill reads. Status is only ever changed by the coordinator after an independent `reviewer` pass confirms `REVIEW_CLEAN` — not by any agent's self-report. `done` requires a merged PR, not just a passing gate. `Reqs` cites the `R#.#` acceptance criteria from `requirements.md` this task implements — `reviewer` checks the diff against those, not against a paraphrase of the task title. Status updates here are pushed directly to `main` (bookkeeping, same as `docs/lessons/` — not code, doesn't go through PR review); the actual code for each task always does.
 
 | # | Task | Status | Reqs | Linear | PR |
