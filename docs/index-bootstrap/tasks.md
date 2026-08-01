@@ -14,4 +14,4 @@ WHEN the backend application starts, THE SYSTEM SHALL ensure the `cars` OpenSear
 
 | # | Task | Status | Reqs | PR |
 |---|---|---|---|---|
-| 1 | Add a startup step (`CommandLineRunner`/`ApplicationRunner`) that creates the `cars` index with `CarIndexMapping.mapping()` if it doesn't already exist | todo | (see acceptance criterion above) | |
+| 1 | Add a startup step (`CommandLineRunner`/`ApplicationRunner`) that creates the `cars` index with `CarIndexMapping.mapping()` if it doesn't already exist | in_progress | (see acceptance criterion above) |  |
