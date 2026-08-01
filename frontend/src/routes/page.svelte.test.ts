@@ -299,6 +299,57 @@ describe('search page', () => {
 		expect(body).not.toHaveProperty('filters');
 	});
 
+	it('includes a top-level sort value in the submitted request body when a sort option is selected', async () => {
+		const fetchMock = vi.fn().mockResolvedValue({
+			ok: true,
+			json: async () => ({ results: [] })
+		});
+		vi.stubGlobal('fetch', fetchMock);
+
+		render(Page);
+
+		const input = screen.getByRole('textbox', { name: /search/i });
+		await fireEvent.input(input, { target: { value: 'suv' } });
+
+		const sortSelect = screen.getByLabelText(/sort/i);
+		await fireEvent.change(sortSelect, { target: { value: 'price_asc' } });
+
+		await fireEvent.submit(input.closest('form')!);
+
+		await waitFor(() => {
+			expect(fetchMock).toHaveBeenCalled();
+		});
+
+		const [, options] = fetchMock.mock.calls[0];
+		const body = JSON.parse(options.body as string);
+		// `sort` is a top-level sibling of `query`/`filters`, not nested inside
+		// `filters` — it changes result ordering, not the result set.
+		expect(body.sort).toBe('price_asc');
+	});
+
+	it('omits sort from the request body when the sort control is left at its default (Best match)', async () => {
+		const fetchMock = vi.fn().mockResolvedValue({
+			ok: true,
+			json: async () => ({ results: [] })
+		});
+		vi.stubGlobal('fetch', fetchMock);
+
+		render(Page);
+
+		const input = screen.getByRole('textbox', { name: /search/i });
+		await fireEvent.input(input, { target: { value: 'suv' } });
+
+		await fireEvent.submit(input.closest('form')!);
+
+		await waitFor(() => {
+			expect(fetchMock).toHaveBeenCalled();
+		});
+
+		const [, options] = fetchMock.mock.calls[0];
+		const body = JSON.parse(options.body as string);
+		expect(body).not.toHaveProperty('sort');
+	});
+
 	it('keeps filter inputs collapsed in a drawer until the Filters toggle is activated', async () => {
 		render(Page);
 
