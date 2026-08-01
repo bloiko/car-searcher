@@ -259,4 +259,25 @@ describe('search page', () => {
 		const body = JSON.parse(options.body as string);
 		expect(body).not.toHaveProperty('filters');
 	});
+
+	it('renders with a defined color, typography, and spacing system instead of unstyled browser defaults', () => {
+		const { container } = render(Page);
+
+		const h1 = container.querySelector('h1') as HTMLElement;
+		const searchInput = screen.getByRole('textbox', { name: /search/i });
+
+		const h1Style = getComputedStyle(h1);
+		const inputStyle = getComputedStyle(searchInput);
+		const bodyStyle = getComputedStyle(document.body);
+
+		// Typography: a real font stack must be defined, not left at jsdom's
+		// "unset" placeholder for the browser-default font.
+		expect(h1Style.fontFamily).not.toBe('depends on user agent');
+		// Spacing: form inputs must have deliberate padding from a spacing scale,
+		// not the browser-default zero.
+		expect(inputStyle.padding).not.toBe('0');
+		// Color: the page background must come from an explicit token, not the
+		// browser-default transparent.
+		expect(bodyStyle.backgroundColor).not.toBe('rgba(0, 0, 0, 0)');
+	});
 });

@@ -119,3 +119,109 @@
 		</ul>
 	{/if}
 {/if}
+
+<style>
+	:global(:root) {
+		--color-bg: #f8f7f5;
+		--color-surface: #ffffff;
+		--color-text: #1c1917;
+		--color-text-muted: #57534e;
+		--color-border: #d6d3d1;
+		--color-primary: #b45309;
+		--color-primary-text: #ffffff;
+
+		--font-body: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+		--font-heading: Georgia, 'Times New Roman', serif;
+
+		--text-sm: 0.875rem;
+		--text-base: 1rem;
+		--text-lg: 1.25rem;
+		--text-2xl: 2.25rem;
+
+		--space-1: 0.25rem;
+		--space-2: 0.5rem;
+		--space-3: 0.75rem;
+		--space-4: 1rem;
+		--space-6: 1.5rem;
+
+		--radius: 0.375rem;
+	}
+
+	@media (prefers-color-scheme: dark) {
+		:global(:root) {
+			--color-bg: #1c1917;
+			--color-surface: #292524;
+			--color-text: #f5f5f4;
+			--color-text-muted: #a8a29e;
+			--color-border: #44403c;
+			--color-primary: #f59e0b;
+			--color-primary-text: #1c1917;
+		}
+	}
+
+	:global(body) {
+		margin: 0;
+		background-color: var(--color-bg);
+		color: var(--color-text);
+		font-family: var(--font-body);
+		font-size: var(--text-base);
+		line-height: 1.5;
+	}
+
+	h1 {
+		font-family: var(--font-heading);
+		font-size: var(--text-2xl);
+		color: var(--color-text);
+		margin: var(--space-6) var(--space-4);
+	}
+
+	form {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-4);
+		max-width: 28rem;
+		margin: 0 var(--space-4) var(--space-6);
+		padding: var(--space-4);
+		background-color: var(--color-surface);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius);
+	}
+
+	label {
+		font-family: var(--font-body);
+		font-size: var(--text-sm);
+		font-weight: 600;
+		color: var(--color-text-muted);
+	}
+
+	input {
+		font-family: var(--font-body);
+		font-size: var(--text-base);
+		color: var(--color-text);
+		background-color: var(--color-surface);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius);
+		/* Longhand padding (rather than the shorthand) so each side keeps
+		   resolving its own custom property. */
+		padding-top: var(--space-2);
+		padding-bottom: var(--space-2);
+		padding-left: var(--space-3);
+		padding-right: var(--space-3);
+	}
+
+	button {
+		align-self: flex-start;
+		font-family: var(--font-body);
+		font-size: var(--text-base);
+		font-weight: 600;
+		color: var(--color-primary-text);
+		background-color: var(--color-primary);
+		border: none;
+		border-radius: var(--radius);
+		padding-top: var(--space-2);
+		padding-bottom: var(--space-2);
+		padding-left: var(--space-4);
+		padding-right: var(--space-4);
+		cursor: pointer;
+	}
+</style>
