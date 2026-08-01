@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  SpotBugs exclude filter.
+
+  Scope: EI_EXPOSE_REP2 only, only where a Spring-managed collaborator
+  (a client/service handle, not a mutable data object) is stored via
+  constructor injection. There is no meaningful "defensive copy" for a
+  type like OpenSearchClient — it is a stateless API handle, not a data
+  holder — so the standard SpotBugs advice (clone/copy the argument)
+  does not apply. This does not touch any other bug pattern or class.
+-->
+<FindBugsFilter>
+    <Match>
+        <Class name="dev.bloiko.carsearcher.car.CarIndexingService" />
+        <Bug pattern="EI_EXPOSE_REP2" />
+    </Match>
+</FindBugsFilter>
