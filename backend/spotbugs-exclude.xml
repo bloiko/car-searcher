@@ -14,4 +14,8 @@
         <Class name="dev.bloiko.carsearcher.car.CarIndexingService" />
         <Bug pattern="EI_EXPOSE_REP2" />
     </Match>
+    <Match>
+        <Class name="dev.bloiko.carsearcher.car.CarSearchService" />
+        <Bug pattern="EI_EXPOSE_REP2" />
+    </Match>
 </FindBugsFilter>
