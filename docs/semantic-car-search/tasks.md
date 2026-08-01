@@ -11,7 +11,7 @@ This table is the tracker the `implement` skill reads. Status is only ever chang
 | # | Task | Status | Reqs | PR |
 |---|---|---|---|---|
 | 1 | `Car` domain model + OpenSearch index mapping (keyword search version) | done | R2.1, R3.1 | [#1](https://github.com/bloiko/car-searcher/pull/1) (merged) |
-| 2 | `POST /api/cars` — index a listing | in_review | R1.1 (enables it) | [#3](https://github.com/bloiko/car-searcher/pull/3) |
+| 2 | `POST /api/cars` — index a listing | done | R1.1 (enables it) | [#3](https://github.com/bloiko/car-searcher/pull/3) (merged) |
 | 3 | `POST /api/cars/search` — placeholder `multi_match` keyword search | todo | R1.1, R1.2, R4.1 | — |
 | 4 | SvelteKit search page calling the above | todo | R3.1 | — |
 
