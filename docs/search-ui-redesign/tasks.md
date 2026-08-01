@@ -8,9 +8,9 @@ Linear: [BOH-19](https://linear.app/bohdanloiko/issue/BOH-19)
 
 | # | Task | Status | Reqs | PR |
 |---|---|---|---|---|
-| 1 | Add design-token CSS (light/dark custom properties, type scale, spacing) to `+page.svelte`; restyle `<h1>` and the existing form elements against the tokens — no structural changes yet | in_review | R1.1 | [#9](https://github.com/bloiko/car-searcher/pull/9) |
-| 2 | Restructure header: search input first and visually primary, filter inputs moved into a collapsible drawer behind a "Filters" toggle button | in_review | R1.2 | [#9](https://github.com/bloiko/car-searcher/pull/9) |
-| 3 | Add dismissible filter chips derived from the four filter `$state` values; dismissing a chip clears that filter | in_review | R2.1, R2.2 | [#9](https://github.com/bloiko/car-searcher/pull/9) |
-| 4 | Replace the `<ul><li>` result list with a card grid; add the missing `mileage` field to the frontend `CarResult` type and render it | in_review | R3.1 | [#9](https://github.com/bloiko/car-searcher/pull/9) |
-| 5 | Restyle the loading/empty/error branches as distinct, styled states (`role="status"` for loading, styled empty-state block, styled error banner) | in_review | R4.1, R4.2, R4.3 | [#9](https://github.com/bloiko/car-searcher/pull/9) |
-| 6 | Add the `max-width: 720px` responsive rule collapsing the card grid to one column; verify manually in the browser preview | in_review | R5.1 | [#9](https://github.com/bloiko/car-searcher/pull/9) |
+| 1 | Add design-token CSS (light/dark custom properties, type scale, spacing) to `+page.svelte`; restyle `<h1>` and the existing form elements against the tokens — no structural changes yet | done | R1.1 | [#9](https://github.com/bloiko/car-searcher/pull/9) (merged) |
+| 2 | Restructure header: search input first and visually primary, filter inputs moved into a collapsible drawer behind a "Filters" toggle button | done | R1.2 | [#9](https://github.com/bloiko/car-searcher/pull/9) (merged) |
+| 3 | Add dismissible filter chips derived from the four filter `$state` values; dismissing a chip clears that filter | done | R2.1, R2.2 | [#9](https://github.com/bloiko/car-searcher/pull/9) (merged) |
+| 4 | Replace the `<ul><li>` result list with a card grid; add the missing `mileage` field to the frontend `CarResult` type and render it | done | R3.1 | [#9](https://github.com/bloiko/car-searcher/pull/9) (merged) |
+| 5 | Restyle the loading/empty/error branches as distinct, styled states (`role="status"` for loading, styled empty-state block, styled error banner) | done | R4.1, R4.2, R4.3 | [#9](https://github.com/bloiko/car-searcher/pull/9) (merged) |
+| 6 | Add the `max-width: 720px` responsive rule collapsing the card grid to one column; verify manually in the browser preview | done | R5.1 | [#9](https://github.com/bloiko/car-searcher/pull/9) (merged) |
