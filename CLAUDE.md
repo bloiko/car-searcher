@@ -15,6 +15,12 @@ car-searcher/
     lessons/         INDEX.md + one file per resolved blocker/failure
 ```
 
+## Working a task — the `implement` workflow
+
+If asked to implement a task from `docs/<feature>/tasks.md` (or just "continue the tracker"/"work on BOH-N"), use the `implement` skill if it's available in this session (`~/.claude/skills/implement/`, installed globally, not project-local). If it isn't — a fresh machine, a session without it installed — the identical protocol is written out in full at `../ai-workflow/skills/implement/SKILL.md`; read that file and follow it directly rather than improvising something similar.
+
+The short version: dispatch isolated `test-author` → `implementer` → `reviewer` subagents per task (never write the test or the code yourself — that defeats the point), commit on one shared feature branch per feature, and use `../ai-workflow/scripts/workflow.mjs` for the git/GitHub/Linear mechanics (`claim`, `open-pr`, `check-merged`, `status`) rather than hand-rolling git/curl commands — that script exists specifically because hand-rolling those steps is where real mistakes happened (committing straight to `main`, marking things done before a PR even existed). One PR covers however many tasks were claimed in a pass, not one PR per task.
+
 ## Spec-driven development (SDD)
 
 Before implementing a feature of any real size, write `docs/<feature-slug>/` from the templates in `ai-workflow/templates/` (sibling repo):
