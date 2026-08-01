@@ -8,6 +8,6 @@ Linear: [BOH-14](https://linear.app/bohdanloiko/issue/BOH-14)
 
 | # | Task | Status | Reqs | PR |
 |---|---|---|---|---|
-| 1 | Expand `CarSearchRequest.Filters` (yearMin, mileageMax, make) + validation (reject negative priceMax/mileageMax) | todo | R1.2, R3.2 | — |
+| 1 | Expand `CarSearchRequest.Filters` (yearMin, mileageMax, make) + validation (reject negative priceMax/mileageMax) | in_progress | R1.2, R3.2 | — |
 | 2 | `CarSearchService` builds a `bool` query (multi_match in `must`, filter clauses in `filter`); `CarSearchController` passes filters through | todo | R1.1, R2.1, R3.1, R4.1, R5.1, R5.2 | — |
 | 3 | Frontend: filter inputs on the search form, included in the request | todo | R6.1 | — |
