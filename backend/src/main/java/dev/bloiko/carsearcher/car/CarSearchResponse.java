@@ -25,11 +25,18 @@ public record CarSearchResponse(List<CarSearchResult> results) {
      * R3.1, this is deliberately narrower than {@link Car}: it omits
      * {@code mileage}, which isn't part of the documented response contract.
      */
-    public record CarSearchResult(String id, String make, String model, int year, float price, String description) {
+    public record CarSearchResult(
+            String id, String make, String model, int year, float price, String description,
+            List<String> photoUrls) {
+
+        public CarSearchResult {
+            photoUrls = List.copyOf(photoUrls);
+        }
 
         static CarSearchResult from(Car car) {
             return new CarSearchResult(
-                    car.id(), car.make(), car.model(), car.year(), car.price(), car.description());
+                    car.id(), car.make(), car.model(), car.year(), car.price(), car.description(),
+                    car.photoUrls());
         }
     }
 }
