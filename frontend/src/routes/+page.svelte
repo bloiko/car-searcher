@@ -19,6 +19,29 @@
 	let error = $state('');
 	let filtersOpen = $state(false);
 
+	type FilterChip = {
+		key: string;
+		label: string;
+		value: string;
+		clear: () => void;
+	};
+
+	let filterChips = $derived<FilterChip[]>(
+		(
+			[
+				{ key: 'priceMax', label: 'Max price', value: priceMax, clear: () => (priceMax = '') },
+				{ key: 'yearMin', label: 'Min year', value: yearMin, clear: () => (yearMin = '') },
+				{
+					key: 'mileageMax',
+					label: 'Max mileage',
+					value: mileageMax,
+					clear: () => (mileageMax = '')
+				},
+				{ key: 'make', label: 'Make', value: make, clear: () => (make = '') }
+			] as FilterChip[]
+		).filter((chip) => chip.value !== '')
+	);
+
 	async function handleSubmit(event: SubmitEvent) {
 		event.preventDefault();
 		loading = true;
@@ -73,6 +96,24 @@
 	>
 		Filters
 	</button>
+
+	{#if filterChips.length > 0}
+		<div class="filter-chips">
+			{#each filterChips as chip (chip.key)}
+				<span class="filter-chip">
+					<span class="filter-chip-text">{chip.label}: {chip.value}</span>
+					<button
+						type="button"
+						class="filter-chip-remove"
+						aria-label={`Remove ${chip.label} filter`}
+						onclick={chip.clear}
+					>
+						×
+					</button>
+				</span>
+			{/each}
+		</div>
+	{/if}
 
 	{#if filtersOpen}
 		<div class="filters-drawer">
@@ -279,5 +320,43 @@
 		gap: var(--space-4);
 		padding-top: var(--space-4);
 		border-top: 1px solid var(--color-border);
+	}
+
+	.filter-chips {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-2);
+	}
+
+	.filter-chip {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-1);
+		font-family: var(--font-body);
+		font-size: var(--text-sm);
+		color: var(--color-text);
+		background-color: var(--color-bg);
+		border: 1px solid var(--color-border);
+		border-radius: 999px;
+		padding-top: var(--space-1);
+		padding-bottom: var(--space-1);
+		padding-left: var(--space-3);
+		padding-right: var(--space-2);
+	}
+
+	.filter-chip-remove {
+		align-self: auto;
+		font-family: var(--font-body);
+		font-size: var(--text-sm);
+		font-weight: 600;
+		line-height: 1;
+		color: var(--color-text-muted);
+		background: none;
+		border: none;
+		border-radius: 50%;
+		padding: 0;
+		width: 1.25rem;
+		height: 1.25rem;
+		cursor: pointer;
 	}
 </style>

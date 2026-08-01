@@ -308,4 +308,25 @@ describe('search page', () => {
 		// browser-default transparent.
 		expect(bodyStyle.backgroundColor).not.toBe('rgba(0, 0, 0, 0)');
 	});
+
+	it('shows a dismissible chip for a set filter and clears that filter when the chip is dismissed', async () => {
+		render(Page);
+
+		await fireEvent.click(screen.getByRole('button', { name: /filters/i }));
+		const maxPriceInput = screen.getByLabelText(/max price/i) as HTMLInputElement;
+		await fireEvent.input(maxPriceInput, { target: { value: '25000' } });
+
+		// Setting the filter should surface a labeled chip showing its value.
+		expect(screen.getByText(/max price.*25000/i)).not.toBeNull();
+
+		// The chip exposes its own dismiss control, distinguishable by an
+		// accessible name that references the filter it clears.
+		const removeChipButton = screen.getByRole('button', { name: /remove.*max price.*filter/i });
+		await fireEvent.click(removeChipButton);
+
+		// Dismissing the chip clears the underlying filter input...
+		expect(maxPriceInput.value).toBe('');
+		// ...and the chip itself disappears now that the filter is unset.
+		expect(screen.queryByText(/max price.*25000/i)).toBeNull();
+	});
 });
