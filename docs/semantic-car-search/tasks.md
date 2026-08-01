@@ -13,7 +13,7 @@ This table is the tracker the `implement` skill reads. Status is only ever chang
 | 1 | `Car` domain model + OpenSearch index mapping (keyword search version) | done | R2.1, R3.1 | [#1](https://github.com/bloiko/car-searcher/pull/1) (merged) |
 | 2 | `POST /api/cars` — index a listing | done | R1.1 (enables it) | [#3](https://github.com/bloiko/car-searcher/pull/3) (merged) |
 | 3 | `POST /api/cars/search` — placeholder `multi_match` keyword search | in_progress | R1.1, R1.2, R4.1 | — |
-| 4 | SvelteKit search page calling the above | todo | R3.1 | — |
+| 4 | SvelteKit search page calling the above | in_progress | R3.1 | — |
 
 Bootstrap already done directly (not through the TDD loop, since it's scaffolding rather than a task with a testable behavior): pom.xml, Spring Boot app skeleton, gate stack wired into the Maven build (PMD, SpotBugs, ArchUnit), local OpenSearch via `docker-compose.yml`.
 
