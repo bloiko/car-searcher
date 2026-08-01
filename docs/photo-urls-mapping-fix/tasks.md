@@ -18,4 +18,4 @@ THE SYSTEM SHALL declare the `cars` index's photo-URLs field as `photoUrls` (key
 
 | # | Task | Status | Reqs | PR |
 |---|---|---|---|---|
-| 1 | Rename `CarIndexMapping`'s `photo_urls` property to `photoUrls` | todo | (see acceptance criterion above) | |
+| 1 | Rename `CarIndexMapping`'s `photo_urls` property to `photoUrls` | in_progress | (see acceptance criterion above) |  |
