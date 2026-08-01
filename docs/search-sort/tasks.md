@@ -23,4 +23,4 @@ Linear: [BOH-17](https://linear.app/bohdanloiko/issue/BOH-17)
 | # | Task | Status | Reqs | PR |
 |---|---|---|---|---|
 | 1 | Add `sort` field to `CarSearchRequest`; `CarSearchService` applies an OpenSearch sort clause for `price_asc`/`mileage_asc`, rejects any other non-null value, unaffected when absent | in_progress | (see acceptance criteria above) |  |
-| 2 | Frontend: sort `<select>` in `+page.svelte` (Best match / Price: low to high / Mileage: low to high), included in the request when set | todo | (see acceptance criteria above) | |
+| 2 | Frontend: sort `<select>` in `+page.svelte` (Best match / Price: low to high / Mileage: low to high), included in the request when set | in_progress | (see acceptance criteria above) |  |
