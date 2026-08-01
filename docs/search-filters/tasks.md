@@ -8,6 +8,6 @@ Linear: [BOH-14](https://linear.app/bohdanloiko/issue/BOH-14)
 
 | # | Task | Status | Reqs | PR |
 |---|---|---|---|---|
-| 1 | Expand `CarSearchRequest.Filters` (yearMin, mileageMax, make) + validation (reject negative priceMax/mileageMax) | in_review | R1.2, R3.2 | [#7](https://github.com/bloiko/car-searcher/pull/7) |
-| 2 | `CarSearchService` builds a `bool` query (multi_match in `must`, filter clauses in `filter`); `CarSearchController` passes filters through | in_review | R1.1, R2.1, R3.1, R4.1, R5.1, R5.2 | [#7](https://github.com/bloiko/car-searcher/pull/7) |
-| 3 | Frontend: filter inputs on the search form, included in the request | in_review | R6.1 | [#7](https://github.com/bloiko/car-searcher/pull/7) |
+| 1 | Expand `CarSearchRequest.Filters` (yearMin, mileageMax, make) + validation (reject negative priceMax/mileageMax) | done | R1.2, R3.2 | [#7](https://github.com/bloiko/car-searcher/pull/7) (merged) |
+| 2 | `CarSearchService` builds a `bool` query (multi_match in `must`, filter clauses in `filter`); `CarSearchController` passes filters through | done | R1.1, R2.1, R3.1, R4.1, R5.1, R5.2 | [#7](https://github.com/bloiko/car-searcher/pull/7) (merged) |
+| 3 | Frontend: filter inputs on the search form, included in the request | done | R6.1 | [#7](https://github.com/bloiko/car-searcher/pull/7) (merged) |
