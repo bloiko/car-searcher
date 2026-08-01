@@ -22,5 +22,5 @@ Linear: [BOH-17](https://linear.app/bohdanloiko/issue/BOH-17)
 
 | # | Task | Status | Reqs | PR |
 |---|---|---|---|---|
-| 1 | Add `sort` field to `CarSearchRequest`; `CarSearchService` applies an OpenSearch sort clause for `price_asc`/`mileage_asc`, rejects any other non-null value, unaffected when absent | in_review | (see acceptance criteria above) | [#12](https://github.com/bloiko/car-searcher/pull/12) |
-| 2 | Frontend: sort `<select>` in `+page.svelte` (Best match / Price: low to high / Mileage: low to high), included in the request when set | in_review | (see acceptance criteria above) | [#12](https://github.com/bloiko/car-searcher/pull/12) |
+| 1 | Add `sort` field to `CarSearchRequest`; `CarSearchService` applies an OpenSearch sort clause for `price_asc`/`mileage_asc`, rejects any other non-null value, unaffected when absent | done | (see acceptance criteria above) | [#12](https://github.com/bloiko/car-searcher/pull/12) (merged) |
+| 2 | Frontend: sort `<select>` in `+page.svelte` (Best match / Price: low to high / Mileage: low to high), included in the request when set | done | (see acceptance criteria above) | [#12](https://github.com/bloiko/car-searcher/pull/12) (merged) |
