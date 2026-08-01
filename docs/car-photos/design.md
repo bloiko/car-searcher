@@ -17,7 +17,7 @@
 photoUrls   List<String>   -- may be empty, never null, no blank entries
 ```
 
-`CarIndexMapping` gains `photo_urls` as a `keyword` field (not analyzed/searchable text — these are opaque URLs, not something a user should be able to full-text search). A `List<String>` maps to a multi-value keyword field in OpenSearch automatically; no special array handling needed in the mapping itself.
+`CarIndexMapping` gains `photoUrls` as a `keyword` field (not analyzed/searchable text — these are opaque URLs, not something a user should be able to full-text search). A `List<String>` maps to a multi-value keyword field in OpenSearch automatically; no special array handling needed in the mapping itself.
 
 `CarSearchResult` (the response shape from `POST /api/cars/search`, currently id/make/model/year/price/description) gains `photoUrls` too, so the frontend has something to render without a second request — consistent with the existing "usable result payload" requirement (R3.1 in `semantic-car-search`).
 
