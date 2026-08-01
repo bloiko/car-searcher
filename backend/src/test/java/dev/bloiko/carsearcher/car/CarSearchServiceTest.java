@@ -13,6 +13,8 @@ import org.opensearch.client.opensearch._types.query_dsl.RangeQuery;
 import org.opensearch.client.opensearch._types.query_dsl.TermQuery;
 import org.opensearch.client.opensearch.core.SearchRequest;
 import org.opensearch.client.opensearch.core.SearchResponse;
+import org.opensearch.client.opensearch.core.search.Hit;
+import org.opensearch.client.opensearch.core.search.HitsMetadata;
 
 import java.io.IOException;
 import java.util.List;
@@ -35,8 +37,7 @@ class CarSearchServiceTest {
     void searchesCarsIndexWithMultiMatchOverDescriptionMakeModelAndMapsHitsToCars() throws IOException {
         Car matchedCar = new Car("car-1", "Toyota", "RAV4", 2021, 27_500f, 18_000, "A reliable family SUV",
                 List.of());
-        SearchResponse<Car> response = mock(SearchResponse.class);
-        when(response.documents()).thenReturn(List.of(matchedCar));
+        SearchResponse<Car> response = mockResponseWithHits(List.of(matchedCar));
         when(openSearchClient.search(any(SearchRequest.class), eq(Car.class))).thenReturn(response);
         CarSearchService service = new CarSearchService(openSearchClient);
 
@@ -61,8 +62,7 @@ class CarSearchServiceTest {
     @Test
     @SuppressWarnings("unchecked")
     void searchWithNoFiltersProducesEmptyFilterList() throws IOException {
-        SearchResponse<Car> response = mock(SearchResponse.class);
-        when(response.documents()).thenReturn(List.of());
+        SearchResponse<Car> response = mockResponseWithHits(List.of());
         when(openSearchClient.search(any(SearchRequest.class), eq(Car.class))).thenReturn(response);
         CarSearchService service = new CarSearchService(openSearchClient);
         CarSearchRequest.Filters filters = new CarSearchRequest.Filters(null, null, null, null);
@@ -79,8 +79,7 @@ class CarSearchServiceTest {
     @Test
     @SuppressWarnings("unchecked")
     void searchWithYearMinFilterAddsRangeFilterClauseOnYear() throws IOException {
-        SearchResponse<Car> response = mock(SearchResponse.class);
-        when(response.documents()).thenReturn(List.of());
+        SearchResponse<Car> response = mockResponseWithHits(List.of());
         when(openSearchClient.search(any(SearchRequest.class), eq(Car.class))).thenReturn(response);
         CarSearchService service = new CarSearchService(openSearchClient);
         CarSearchRequest.Filters filters = new CarSearchRequest.Filters(null, 2018, null, null);
@@ -102,8 +101,7 @@ class CarSearchServiceTest {
     @Test
     @SuppressWarnings("unchecked")
     void searchWithMileageMaxFilterAddsRangeFilterClauseOnMileage() throws IOException {
-        SearchResponse<Car> response = mock(SearchResponse.class);
-        when(response.documents()).thenReturn(List.of());
+        SearchResponse<Car> response = mockResponseWithHits(List.of());
         when(openSearchClient.search(any(SearchRequest.class), eq(Car.class))).thenReturn(response);
         CarSearchService service = new CarSearchService(openSearchClient);
         CarSearchRequest.Filters filters = new CarSearchRequest.Filters(null, null, 50_000, null);
@@ -125,8 +123,7 @@ class CarSearchServiceTest {
     @Test
     @SuppressWarnings("unchecked")
     void searchWithMakeFilterAddsTermFilterClauseOnMake() throws IOException {
-        SearchResponse<Car> response = mock(SearchResponse.class);
-        when(response.documents()).thenReturn(List.of());
+        SearchResponse<Car> response = mockResponseWithHits(List.of());
         when(openSearchClient.search(any(SearchRequest.class), eq(Car.class))).thenReturn(response);
         CarSearchService service = new CarSearchService(openSearchClient);
         CarSearchRequest.Filters filters = new CarSearchRequest.Filters(null, null, null, "Toyota");
@@ -148,8 +145,7 @@ class CarSearchServiceTest {
     @Test
     @SuppressWarnings("unchecked")
     void searchWithPriceMaxFilterAddsRangeFilterClauseOnPriceWithoutAffectingMustClause() throws IOException {
-        SearchResponse<Car> response = mock(SearchResponse.class);
-        when(response.documents()).thenReturn(List.of());
+        SearchResponse<Car> response = mockResponseWithHits(List.of());
         when(openSearchClient.search(any(SearchRequest.class), eq(Car.class))).thenReturn(response);
         CarSearchService service = new CarSearchService(openSearchClient);
         CarSearchRequest.Filters filters = new CarSearchRequest.Filters(30_000f, null, null, null);
@@ -175,5 +171,30 @@ class CarSearchServiceTest {
         RangeQuery priceRange = filterClause.range();
         assertThat(priceRange.field()).isEqualTo("price");
         assertThat(priceRange.lte().to(Float.class)).isEqualTo(30_000f);
+    }
+
+    /**
+     * CarSearchService deliberately does NOT call {@link SearchResponse#documents()}
+     * -- confirmed against a real OpenSearch cluster that it silently returns an
+     * empty list even when hits have a genuinely non-null source (a real bug/gotcha
+     * in this client version, invisible to any mock). Mocks must match that: stub
+     * {@code hits().hits()} with {@link Hit#source()}, never {@code documents()}
+     * directly, or a test can pass while the mocked shape no longer matches what
+     * the production code actually calls.
+     */
+    @SuppressWarnings("unchecked")
+    private static SearchResponse<Car> mockResponseWithHits(List<Car> cars) {
+        SearchResponse<Car> response = mock(SearchResponse.class);
+        HitsMetadata<Car> hitsMetadata = mock(HitsMetadata.class);
+        List<Hit<Car>> hits = cars.stream()
+                .map(car -> {
+                    Hit<Car> hit = mock(Hit.class);
+                    when(hit.source()).thenReturn(car);
+                    return hit;
+                })
+                .toList();
+        when(hitsMetadata.hits()).thenReturn(hits);
+        when(response.hits()).thenReturn(hitsMetadata);
+        return response;
     }
 }

@@ -10,6 +10,7 @@ import org.opensearch.client.opensearch._types.FieldValue;
 import org.opensearch.client.opensearch._types.query_dsl.Query;
 import org.opensearch.client.opensearch.core.SearchRequest;
 import org.opensearch.client.opensearch.core.SearchResponse;
+import org.opensearch.client.opensearch.core.search.Hit;
 import org.springframework.stereotype.Service;
 
 /**
@@ -47,7 +48,10 @@ public class CarSearchService {
                 .build();
         try {
             SearchResponse<Car> response = openSearchClient.search(request, Car.class);
-            return response.documents();
+            // Deliberately not response.documents(): confirmed against a real cluster
+            // (no mock can catch this) that it returns an empty list even when hits
+            // genuinely have a non-null source -- see docs/lessons/. Map hits by hand.
+            return response.hits().hits().stream().map(Hit::source).toList();
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to search cars index for query \"" + query + "\"", e);
         }
