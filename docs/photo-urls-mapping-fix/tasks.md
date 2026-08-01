@@ -18,4 +18,4 @@ THE SYSTEM SHALL declare the `cars` index's photo-URLs field as `photoUrls` (key
 
 | # | Task | Status | Reqs | PR |
 |---|---|---|---|---|
-| 1 | Rename `CarIndexMapping`'s `photo_urls` property to `photoUrls` | in_progress | (see acceptance criterion above) |  |
+| 1 | Rename `CarIndexMapping`'s `photo_urls` property to `photoUrls` | in_review | (see acceptance criterion above) | [#11](https://github.com/bloiko/car-searcher/pull/11) |
