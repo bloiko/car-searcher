@@ -2,7 +2,7 @@ import { defineConfig } from 'vitest/config';
 import adapter from '@sveltejs/adapter-auto';
 import { sveltekit } from '@sveltejs/kit/vite';
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
 	plugins: [
 		sveltekit({
 			compilerOptions: {
@@ -16,6 +16,10 @@ export default defineConfig({
 			adapter: adapter()
 		})
 	],
+	// SvelteKit's vite plugin resolves an SSR build by default, which makes `svelte`
+	// resolve to its server-side entrypoint (no `mount`). Vitest runs with mode
+	// 'test', so scope the browser condition to that without affecting dev/build.
+	resolve: mode === 'test' ? { conditions: ['browser'] } : undefined,
 	test: {
 		expect: { requireAssertions: true },
 		projects: [
@@ -27,7 +31,15 @@ export default defineConfig({
 					include: ['src/**/*.{test,spec}.{js,ts}'],
 					exclude: ['src/**/*.svelte.{test,spec}.{js,ts}']
 				}
+			},
+			{
+				extends: './vite.config.ts',
+				test: {
+					name: 'client',
+					environment: 'jsdom',
+					include: ['src/**/*.svelte.{test,spec}.{js,ts}']
+				}
 			}
 		]
 	}
-});
+}));
