@@ -19,4 +19,11 @@ class CarSearchRequestTest {
                 .isThrownBy(() -> new CarSearchRequest.Filters(null, null, -1, null))
                 .withMessageContaining("mileageMax");
     }
+
+    @Test
+    void rejectsSortValueThatIsNotPriceAscOrMileageAsc() {
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> new CarSearchRequest("suv", null, "price_desc"))
+                .withMessageContaining("sort");
+    }
 }

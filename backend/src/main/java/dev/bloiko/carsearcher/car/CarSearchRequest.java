@@ -12,8 +12,16 @@ import jakarta.validation.constraints.NotBlank;
  *     placeholder keyword-search task (task 3, Reqs R1.1/R1.2/R4.1); it's left
  *     for the k-NN backlog item "Combine k-NN relevance with structured filters"
  *     in docs/semantic-car-search/tasks.md. May be {@code null}.
+ * @param sort result ordering; {@code "price_asc"} or {@code "mileage_asc"}, or
+ *     {@code null} for the default relevance ranking. See docs/search-sort/tasks.md.
  */
-public record CarSearchRequest(@NotBlank String query, Filters filters) {
+public record CarSearchRequest(@NotBlank String query, Filters filters, String sort) {
+
+    public CarSearchRequest {
+        if (sort != null && !sort.equals("price_asc") && !sort.equals("mileage_asc")) {
+            throw new IllegalArgumentException("sort must be \"price_asc\" or \"mileage_asc\"");
+        }
+    }
 
     /**
      * Structured filters. Not yet applied to the query (see {@link CarSearchRequest});

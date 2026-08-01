@@ -7,6 +7,8 @@ import java.util.List;
 import org.opensearch.client.json.JsonData;
 import org.opensearch.client.opensearch.OpenSearchClient;
 import org.opensearch.client.opensearch._types.FieldValue;
+import org.opensearch.client.opensearch._types.SortOptions;
+import org.opensearch.client.opensearch._types.SortOrder;
 import org.opensearch.client.opensearch._types.query_dsl.Query;
 import org.opensearch.client.opensearch.core.SearchRequest;
 import org.opensearch.client.opensearch.core.SearchResponse;
@@ -38,13 +40,15 @@ public class CarSearchService {
         this.openSearchClient = openSearchClient;
     }
 
-    public List<Car> search(String query, CarSearchRequest.Filters filters) {
+    public List<Car> search(String query, CarSearchRequest.Filters filters, String sort) {
         List<Query> filterClauses = buildFilterClauses(filters);
+        List<SortOptions> sortClauses = buildSortClauses(sort);
         SearchRequest request = new SearchRequest.Builder()
                 .index(CARS_INDEX)
                 .query(q -> q.bool(b -> b
                         .must(m -> m.multiMatch(mm -> mm.query(query).fields(SEARCH_FIELDS)))
                         .filter(filterClauses)))
+                .sort(sortClauses)
                 .build();
         try {
             SearchResponse<Car> response = openSearchClient.search(request, Car.class);
@@ -55,6 +59,18 @@ public class CarSearchService {
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to search cars index for query \"" + query + "\"", e);
         }
+    }
+
+    private static List<SortOptions> buildSortClauses(String sort) {
+        if (sort == null) {
+            return List.of();
+        }
+        String field = switch (sort) {
+            case "price_asc" -> "price";
+            case "mileage_asc" -> "mileage";
+            default -> throw new IllegalArgumentException("sort must be \"price_asc\" or \"mileage_asc\"");
+        };
+        return List.of(SortOptions.of(s -> s.field(f -> f.field(field).order(SortOrder.Asc))));
     }
 
     private static List<Query> buildFilterClauses(CarSearchRequest.Filters filters) {
