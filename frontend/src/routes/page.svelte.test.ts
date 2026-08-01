@@ -40,6 +40,39 @@ describe('search page', () => {
 		expect(container.textContent).toContain('25000');
 	});
 
+	it('renders a result\'s mileage after submitting a query', async () => {
+		const mockResult = {
+			id: '1',
+			make: 'Toyota',
+			model: 'RAV4',
+			year: 2020,
+			price: 25000,
+			mileage: 42000,
+			description: 'A reliable family SUV under 30k',
+			photoUrls: []
+		};
+		vi.stubGlobal(
+			'fetch',
+			vi.fn().mockResolvedValue({
+				ok: true,
+				json: async () => ({ results: [mockResult] })
+			})
+		);
+
+		const { container } = render(Page);
+
+		const input = screen.getByRole('textbox', { name: /search/i });
+		await fireEvent.input(input, { target: { value: 'reliable family suv under 30k' } });
+		await fireEvent.submit(input.closest('form')!);
+
+		await waitFor(() => {
+			expect(container.textContent).toContain('Toyota');
+		});
+		// Rendered as the raw number, matching how price and year are rendered
+		// elsewhere on the card (no thousands separator, no "mi" unit suffix).
+		expect(container.textContent).toContain('42000');
+	});
+
 	it('renders the first photo URL as a thumbnail image when a result has photos', async () => {
 		const mockResult = {
 			id: '1',

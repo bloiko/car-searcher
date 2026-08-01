@@ -5,6 +5,7 @@
 		model: string;
 		year: number;
 		price: number;
+		mileage: number;
 		description: string;
 		photoUrls: string[];
 	};
@@ -159,20 +160,21 @@
 	{#if results.length === 0}
 		<p>No results found.</p>
 	{:else}
-		<ul class="results">
+		<div class="results">
 			{#each results as result (result.id)}
-				<li class="result">
+				<div class="result-card">
 					{#if result.photoUrls.length > 0}
 						<img src={result.photoUrls[0]} alt="{result.make} {result.model}" class="thumbnail" />
 					{:else}
 						<img src="/placeholder-car.svg" alt="{result.make} {result.model} placeholder" class="thumbnail" />
 					{/if}
-					<h2>{result.make} {result.model} ({result.year})</h2>
 					<p class="price">${result.price}</p>
+					<h2>{result.make} {result.model} ({result.year})</h2>
+					<p class="mileage">{result.mileage}</p>
 					<p class="description">{result.description}</p>
-				</li>
+				</div>
 			{/each}
-		</ul>
+		</div>
 	{/if}
 {/if}
 
@@ -358,5 +360,59 @@
 		width: 1.25rem;
 		height: 1.25rem;
 		cursor: pointer;
+	}
+
+	.results {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+		gap: var(--space-4);
+		margin: 0 var(--space-4) var(--space-6);
+	}
+
+	.result-card {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-1);
+		background-color: var(--color-surface);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius);
+		padding: var(--space-4);
+	}
+
+	.result-card .thumbnail {
+		width: 100%;
+		aspect-ratio: 16 / 9;
+		object-fit: cover;
+		border-radius: var(--radius);
+		margin-bottom: var(--space-2);
+	}
+
+	.result-card h2 {
+		font-family: var(--font-heading);
+		font-size: var(--text-base);
+		font-weight: 400;
+		color: var(--color-text);
+		margin: 0;
+	}
+
+	/* Price is the most visually prominent figure on the card: larger and
+	   heavier than the make/model/year heading and the mileage figure. */
+	.result-card .price {
+		font-size: var(--text-2xl);
+		font-weight: 700;
+		color: var(--color-text);
+		margin: 0;
+	}
+
+	.result-card .mileage {
+		font-size: var(--text-sm);
+		color: var(--color-text-muted);
+		margin: 0;
+	}
+
+	.result-card .description {
+		font-size: var(--text-sm);
+		color: var(--color-text-muted);
+		margin: 0;
 	}
 </style>
