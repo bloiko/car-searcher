@@ -17,10 +17,10 @@ car-searcher/
 
 ## Spec-driven development (SDD)
 
-Before implementing a feature of any real size, write `docs/<feature-slug>/`:
-- `requirements.md` — acceptance criteria, in plain language
-- `design.md` — technical approach: data model, endpoints, key decisions
-- `tasks.md` — the implementation checklist, checked off as work lands
+Before implementing a feature of any real size, write `docs/<feature-slug>/` from the templates in `ai-workflow/templates/` (sibling repo):
+- `requirements.md` — acceptance criteria as EARS-pattern statements (`WHEN...THE SYSTEM SHALL...`, `IF...THEN THE SYSTEM SHALL...`, etc.), each with a stable ID like `R1.1` — not free-form prose. See `docs/semantic-car-search/requirements.md` for a worked example.
+- `design.md` — technical approach, and a "Requirements traceability" table citing every `R#.#` from requirements.md. A requirement with no design element is a drafting gap to flag, not skip.
+- `tasks.md` — the tracker `implement` reads. Each row's `Reqs` column cites which `R#.#` it implements, so review checks the diff against the actual acceptance criterion, not a paraphrase of the task title.
 
 Small fixes don't need this ceremony. A new feature or anything with real design decisions does.
 
