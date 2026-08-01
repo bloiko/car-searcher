@@ -9,5 +9,5 @@ Linear: [BOH-13](https://linear.app/bohdanloiko/issue/BOH-13)
 | # | Task | Status | Reqs |
 |---|---|---|---|
 | 1 | `Car.photoUrls` field + validation (reject blank entries) + `CarIndexMapping` gets `photo_urls` | in_progress | R2.1, R2.2 |
-| 2 | `CarSearchResult`/search response includes `photoUrls` | todo | R1.1 |
+| 2 | `CarSearchResult`/search response includes `photoUrls` | in_progress | R1.1 |
 | 3 | Frontend: render first photo (or placeholder) on each result card | todo | R1.2, R1.3 |
