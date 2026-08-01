@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: car-searcher-backend
+
+server:
+  port: 8080
+
+opensearch:
+  host: localhost
+  port: 9200
+  scheme: http
