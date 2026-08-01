@@ -479,4 +479,10 @@
 		color: var(--color-text-muted);
 		margin: 0;
 	}
+
+	@media (max-width: 720px) {
+		.results {
+			grid-template-columns: 1fr;
+		}
+	}
 </style>

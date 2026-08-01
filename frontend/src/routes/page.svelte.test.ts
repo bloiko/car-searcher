@@ -381,4 +381,49 @@ describe('search page', () => {
 		// ...and the chip itself disappears now that the filter is unset.
 		expect(screen.queryByText(/max price.*25000/i)).toBeNull();
 	});
+
+	it('collapses the result card grid to a single column under a 720px media query', () => {
+		render(Page);
+
+		// The dev-mode Vite config forces `compilerOptions.css: 'injected'` under
+		// `mode === 'test'` specifically so the component's <style> block is
+		// injected as a real <style> tag (and thus a real CSSStyleSheet) into the
+		// jsdom document, instead of being extracted to a separate .css file the
+		// way it is for real dev/build. That lets this test inspect the actual
+		// parsed CSSOM rather than a mock.
+		let mediaRule: CSSMediaRule | undefined;
+		let singleColumnResultsRule: CSSStyleRule | undefined;
+
+		for (const sheet of Array.from(document.styleSheets)) {
+			let rules: CSSRuleList;
+			try {
+				rules = sheet.cssRules;
+			} catch {
+				continue;
+			}
+
+			for (const rule of Array.from(rules)) {
+				if (
+					rule instanceof CSSMediaRule &&
+					/max-width:\s*720px/i.test(rule.conditionText || rule.media.mediaText)
+				) {
+					mediaRule = rule;
+					for (const innerRule of Array.from(rule.cssRules)) {
+						if (
+							innerRule instanceof CSSStyleRule &&
+							innerRule.selectorText.includes('.results') &&
+							/^1fr$/.test(innerRule.style.gridTemplateColumns.trim())
+						) {
+							singleColumnResultsRule = innerRule;
+						}
+					}
+				}
+			}
+		}
+
+		// R5.1: below a 720px viewport, `.results` (the card grid) must collapse
+		// from `repeat(auto-fill, minmax(16rem, 1fr))` to a single column.
+		expect(mediaRule).toBeDefined();
+		expect(singleColumnResultsRule).toBeDefined();
+	});
 });
