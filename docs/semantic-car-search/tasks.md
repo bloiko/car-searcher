@@ -17,14 +17,13 @@ This table is the tracker the `implement` skill reads. Status is only ever chang
 
 Bootstrap already done directly (not through the TDD loop, since it's scaffolding rather than a task with a testable behavior): pom.xml, Spring Boot app skeleton, gate stack wired into the Maven build (PMD, SpotBugs, ArchUnit), local OpenSearch via `docker-compose.yml`.
 
-## Backlog — real semantic search (not yet broken into tracker tasks)
+## Backlog — real semantic search
 
-Add these to the table above, one at a time, once tasks 1–4 are done:
+Now tracked as real Linear tickets/trackers instead of untracked bullets (see BOH-19's semantic-search-strategy thread for the full reasoning):
 
-- Pick the embedding model (see open decision in `design.md`)
-- Add `description_vector` (knn_vector) to the index mapping
-- Generate embeddings at index time
-- Embed the query string at search time, run k-NN search
-- Combine k-NN relevance with structured filters (price/year/mileage)
-- Seed a realistic local dataset large enough to tell good ranking from bad
-- Frontend: show relevance qualitatively (e.g. "why this matched") if the embedding approach supports it cheaply
+- ~~Pick the embedding model~~ — **resolved**, see "Embedding model & vector architecture" in `design.md` (BOH-23, done).
+- Structured filters (model/transmission) + UI split between classic filters and residual search — BOH-22, done (`docs/structured-filters-v2/`).
+- Generate and index `description_vector` embeddings via the chosen model — BOH-26, blocked on BOH-23 (done, so unblocked).
+- k-NN semantic search over the residual query, combined with the structured filters from BOH-22 — BOH-27, blocked on BOH-22 (done) and BOH-26.
+- Seed a realistic local dataset large enough to tell good ranking from bad — BOH-24 (seed real inventory), separately tracked, not blocking BOH-26/27's implementation but needed to actually evaluate ranking quality.
+- Frontend: show relevance qualitatively (e.g. "why this matched") — deliberately not ticketed, see BOH-27's own scope note (not part of this round).
