@@ -9,3 +9,7 @@ opensearch:
   host: localhost
   port: 9200
   scheme: http
+
+car-searcher:
+  embedding:
+    model-id: ""

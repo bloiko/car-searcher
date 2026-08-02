@@ -28,7 +28,14 @@ Real (non-placeholder) semantic search needs an embedding model registered and d
 ./backend/scripts/register-embedding-model.sh
 ```
 
-Set the printed model ID as `car-searcher.embedding.model-id` in `backend/src/main/resources/application.yml` before starting the backend — it fails startup with a clear error if this is unset.
+Set the printed model ID as an environment variable before starting the backend (don't hardcode it into `application.yml` — it's checked into git and the model ID is unique per OpenSearch cluster, so a committed value would be wrong for anyone else's environment):
+
+```bash
+export CAR_SEARCHER_EMBEDDING_MODEL_ID=<the-printed-model-id>
+cd backend && ./mvnw spring-boot:run
+```
+
+Startup fails with a clear error if this is unset.
 
 ## This repo has an AI dev workflow — how to use it
 

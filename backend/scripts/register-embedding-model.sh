@@ -11,11 +11,27 @@
 #
 # Usage: ./register-embedding-model.sh [opensearch-host:port]
 # Prints the deployed model ID and the application.yml value to set.
+#
+# Uses `node` (not python3/jq) for JSON field extraction, since node is
+# the one interpreter this repo already assumes is present (frontend/).
 
 set -euo pipefail
 
 HOST="${1:-localhost:9200}"
 BASE="http://${HOST}"
+
+# Reads JSON from stdin, prints the value at the given dotted field path.
+jf() {
+  node -e "
+    let d='';
+    process.stdin.on('data', c => d += c);
+    process.stdin.on('end', () => {
+      const v = '$1'.split('.').reduce((o, k) => (o == null ? o : o[k]), JSON.parse(d));
+      if (v === undefined) { process.stderr.write('field \"$1\" not found in: ' + d + '\n'); process.exit(1); }
+      console.log(v);
+    });
+  "
+}
 
 echo "Enabling ML Commons on a non-dedicated ML node (local single-node dev cluster)..." >&2
 curl -s -X PUT "${BASE}/_cluster/settings" -H "Content-Type: application/json" -d '{
@@ -30,7 +46,7 @@ echo "Registering model group..." >&2
 MODEL_GROUP_ID=$(curl -s -X POST "${BASE}/_plugins/_ml/model_groups/_register" -H "Content-Type: application/json" -d '{
   "name": "car-searcher-embedding-models",
   "description": "Local models for car-searcher semantic search"
-}' | python3 -c "import sys,json; print(json.load(sys.stdin)['model_group_id'])")
+}' | jf model_group_id)
 echo "model_group_id=${MODEL_GROUP_ID}" >&2
 
 echo "Registering paraphrase-multilingual-MiniLM-L12-v2 (async)..." >&2
@@ -39,15 +55,15 @@ REGISTER_TASK_ID=$(curl -s -X POST "${BASE}/_plugins/_ml/models/_register" -H "C
   \"version\": \"1.0.1\",
   \"model_group_id\": \"${MODEL_GROUP_ID}\",
   \"model_format\": \"TORCH_SCRIPT\"
-}" | python3 -c "import sys,json; print(json.load(sys.stdin)['task_id'])")
+}" | jf task_id)
 
 echo "Waiting for registration task ${REGISTER_TASK_ID} to complete..." >&2
 MODEL_ID=""
 for i in $(seq 1 60); do
   TASK=$(curl -s "${BASE}/_plugins/_ml/tasks/${REGISTER_TASK_ID}")
-  STATE=$(echo "${TASK}" | python3 -c "import sys,json; print(json.load(sys.stdin).get('state',''))")
+  STATE=$(echo "${TASK}" | jf state)
   if [ "${STATE}" = "COMPLETED" ]; then
-    MODEL_ID=$(echo "${TASK}" | python3 -c "import sys,json; print(json.load(sys.stdin)['model_id'])")
+    MODEL_ID=$(echo "${TASK}" | jf model_id)
     break
   elif [ "${STATE}" = "FAILED" ]; then
     echo "Model registration failed:" >&2
@@ -63,12 +79,12 @@ fi
 echo "model_id=${MODEL_ID}" >&2
 
 echo "Deploying model ${MODEL_ID} (async)..." >&2
-DEPLOY_TASK_ID=$(curl -s -X POST "${BASE}/_plugins/_ml/models/${MODEL_ID}/_deploy" | python3 -c "import sys,json; print(json.load(sys.stdin)['task_id'])")
+DEPLOY_TASK_ID=$(curl -s -X POST "${BASE}/_plugins/_ml/models/${MODEL_ID}/_deploy" | jf task_id)
 
 echo "Waiting for deploy task ${DEPLOY_TASK_ID} to complete..." >&2
 for i in $(seq 1 60); do
   TASK=$(curl -s "${BASE}/_plugins/_ml/tasks/${DEPLOY_TASK_ID}")
-  STATE=$(echo "${TASK}" | python3 -c "import sys,json; print(json.load(sys.stdin).get('state',''))")
+  STATE=$(echo "${TASK}" | jf state)
   if [ "${STATE}" = "COMPLETED" ]; then
     break
   elif [ "${STATE}" = "FAILED" ]; then
@@ -80,8 +96,10 @@ for i in $(seq 1 60); do
 done
 
 echo "" >&2
-echo "Done. Set this in backend/src/main/resources/application.yml (or as an env override):" >&2
+echo "Done. Set this as an environment variable before starting the backend" >&2
+echo "(don't hardcode it into application.yml -- it's checked into git and" >&2
+echo "this ID is unique to this OpenSearch cluster):" >&2
 echo "" >&2
-echo "  car-searcher.embedding.model-id: \"${MODEL_ID}\"" >&2
+echo "  export CAR_SEARCHER_EMBEDDING_MODEL_ID=${MODEL_ID}" >&2
 echo "" >&2
 echo "${MODEL_ID}"
