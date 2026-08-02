@@ -10,7 +10,7 @@ import org.opensearch.client.opensearch._types.FieldSort;
 import org.opensearch.client.opensearch._types.SortOptions;
 import org.opensearch.client.opensearch._types.SortOrder;
 import org.opensearch.client.opensearch._types.query_dsl.BoolQuery;
-import org.opensearch.client.opensearch._types.query_dsl.MultiMatchQuery;
+import org.opensearch.client.opensearch._types.query_dsl.NeuralQuery;
 import org.opensearch.client.opensearch._types.query_dsl.Query;
 import org.opensearch.client.opensearch._types.query_dsl.RangeQuery;
 import org.opensearch.client.opensearch._types.query_dsl.TermQuery;
@@ -32,17 +32,19 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class CarSearchServiceTest {
 
+    private static final String MODEL_ID = "test-model-id";
+
     @Mock
     private OpenSearchClient openSearchClient;
 
     @Test
     @SuppressWarnings("unchecked")
-    void searchesCarsIndexWithMultiMatchOverDescriptionMakeModelAndMapsHitsToCars() throws IOException {
+    void searchUsesNeuralQueryAgainstDescriptionVectorWithConfiguredModelIdAndK() throws IOException {
         Car matchedCar = new Car("car-1", "Toyota", "RAV4", 2021, 27_500f, 18_000, "Automatic",
                 "A reliable family SUV", List.of());
         SearchResponse<Car> response = mockResponseWithHits(List.of(matchedCar));
         when(openSearchClient.search(any(SearchRequest.class), eq(Car.class))).thenReturn(response);
-        CarSearchService service = new CarSearchService(openSearchClient);
+        CarSearchService service = new CarSearchService(openSearchClient, MODEL_ID);
 
         List<Car> results = service.search("reliable family suv", null, null);
 
@@ -53,10 +55,12 @@ class CarSearchServiceTest {
         assertThat(request.query().isBool()).isTrue();
         BoolQuery boolQuery = request.query().bool();
         assertThat(boolQuery.must()).hasSize(1);
-        assertThat(boolQuery.must().get(0).isMultiMatch()).isTrue();
-        MultiMatchQuery multiMatch = boolQuery.must().get(0).multiMatch();
-        assertThat(multiMatch.query()).isEqualTo("reliable family suv");
-        assertThat(multiMatch.fields()).containsExactlyInAnyOrder("description", "make", "model");
+        assertThat(boolQuery.must().get(0).isNeural()).isTrue();
+        NeuralQuery neuralQuery = boolQuery.must().get(0).neural();
+        assertThat(neuralQuery.field()).isEqualTo("description_vector");
+        assertThat(neuralQuery.queryText()).isEqualTo("reliable family suv");
+        assertThat(neuralQuery.modelId()).isEqualTo(MODEL_ID);
+        assertThat(neuralQuery.k()).isEqualTo(50);
         assertThat(boolQuery.filter()).isEmpty();
 
         assertThat(results).containsExactly(matchedCar);
@@ -67,7 +71,7 @@ class CarSearchServiceTest {
     void searchWithNoFiltersProducesEmptyFilterList() throws IOException {
         SearchResponse<Car> response = mockResponseWithHits(List.of());
         when(openSearchClient.search(any(SearchRequest.class), eq(Car.class))).thenReturn(response);
-        CarSearchService service = new CarSearchService(openSearchClient);
+        CarSearchService service = new CarSearchService(openSearchClient, MODEL_ID);
         CarSearchRequest.Filters filters = new CarSearchRequest.Filters(null, null, null, null, null, null);
 
         service.search("reliable family suv", filters, null);
@@ -84,7 +88,7 @@ class CarSearchServiceTest {
     void searchWithYearMinFilterAddsRangeFilterClauseOnYear() throws IOException {
         SearchResponse<Car> response = mockResponseWithHits(List.of());
         when(openSearchClient.search(any(SearchRequest.class), eq(Car.class))).thenReturn(response);
-        CarSearchService service = new CarSearchService(openSearchClient);
+        CarSearchService service = new CarSearchService(openSearchClient, MODEL_ID);
         CarSearchRequest.Filters filters = new CarSearchRequest.Filters(null, 2018, null, null, null, null);
 
         service.search("reliable family suv", filters, null);
@@ -106,7 +110,7 @@ class CarSearchServiceTest {
     void searchWithMileageMaxFilterAddsRangeFilterClauseOnMileage() throws IOException {
         SearchResponse<Car> response = mockResponseWithHits(List.of());
         when(openSearchClient.search(any(SearchRequest.class), eq(Car.class))).thenReturn(response);
-        CarSearchService service = new CarSearchService(openSearchClient);
+        CarSearchService service = new CarSearchService(openSearchClient, MODEL_ID);
         CarSearchRequest.Filters filters = new CarSearchRequest.Filters(null, null, 50_000, null, null, null);
 
         service.search("reliable family suv", filters, null);
@@ -128,7 +132,7 @@ class CarSearchServiceTest {
     void searchWithMakeFilterAddsTermFilterClauseOnMake() throws IOException {
         SearchResponse<Car> response = mockResponseWithHits(List.of());
         when(openSearchClient.search(any(SearchRequest.class), eq(Car.class))).thenReturn(response);
-        CarSearchService service = new CarSearchService(openSearchClient);
+        CarSearchService service = new CarSearchService(openSearchClient, MODEL_ID);
         CarSearchRequest.Filters filters = new CarSearchRequest.Filters(null, null, null, "Toyota", null, null);
 
         service.search("reliable family suv", filters, null);
@@ -150,7 +154,7 @@ class CarSearchServiceTest {
     void searchWithModelFilterAddsTermFilterClauseOnModel() throws IOException {
         SearchResponse<Car> response = mockResponseWithHits(List.of());
         when(openSearchClient.search(any(SearchRequest.class), eq(Car.class))).thenReturn(response);
-        CarSearchService service = new CarSearchService(openSearchClient);
+        CarSearchService service = new CarSearchService(openSearchClient, MODEL_ID);
         CarSearchRequest.Filters filters = new CarSearchRequest.Filters(null, null, null, null, "RAV4", null);
 
         service.search("reliable family suv", filters, null);
@@ -172,7 +176,7 @@ class CarSearchServiceTest {
     void searchWithTransmissionFilterAddsTermFilterClauseOnTransmission() throws IOException {
         SearchResponse<Car> response = mockResponseWithHits(List.of());
         when(openSearchClient.search(any(SearchRequest.class), eq(Car.class))).thenReturn(response);
-        CarSearchService service = new CarSearchService(openSearchClient);
+        CarSearchService service = new CarSearchService(openSearchClient, MODEL_ID);
         CarSearchRequest.Filters filters = new CarSearchRequest.Filters(null, null, null, null, null, "Automatic");
 
         service.search("reliable family suv", filters, null);
@@ -194,7 +198,7 @@ class CarSearchServiceTest {
     void searchWithPriceMaxFilterAddsRangeFilterClauseOnPriceWithoutAffectingMustClause() throws IOException {
         SearchResponse<Car> response = mockResponseWithHits(List.of());
         when(openSearchClient.search(any(SearchRequest.class), eq(Car.class))).thenReturn(response);
-        CarSearchService service = new CarSearchService(openSearchClient);
+        CarSearchService service = new CarSearchService(openSearchClient, MODEL_ID);
         CarSearchRequest.Filters filters = new CarSearchRequest.Filters(30_000f, null, null, null, null, null);
 
         service.search("reliable family suv", filters, null);
@@ -207,10 +211,12 @@ class CarSearchServiceTest {
         BoolQuery boolQuery = request.query().bool();
 
         assertThat(boolQuery.must()).hasSize(1);
-        assertThat(boolQuery.must().get(0).isMultiMatch()).isTrue();
-        MultiMatchQuery multiMatch = boolQuery.must().get(0).multiMatch();
-        assertThat(multiMatch.query()).isEqualTo("reliable family suv");
-        assertThat(multiMatch.fields()).containsExactlyInAnyOrder("description", "make", "model");
+        assertThat(boolQuery.must().get(0).isNeural()).isTrue();
+        NeuralQuery neuralQuery = boolQuery.must().get(0).neural();
+        assertThat(neuralQuery.field()).isEqualTo("description_vector");
+        assertThat(neuralQuery.queryText()).isEqualTo("reliable family suv");
+        assertThat(neuralQuery.modelId()).isEqualTo(MODEL_ID);
+        assertThat(neuralQuery.k()).isEqualTo(50);
 
         assertThat(boolQuery.filter()).hasSize(1);
         Query filterClause = boolQuery.filter().get(0);
@@ -225,7 +231,7 @@ class CarSearchServiceTest {
     void searchWithPriceAscSortAddsAscendingPriceSortClause() throws IOException {
         SearchResponse<Car> response = mockResponseWithHits(List.of());
         when(openSearchClient.search(any(SearchRequest.class), eq(Car.class))).thenReturn(response);
-        CarSearchService service = new CarSearchService(openSearchClient);
+        CarSearchService service = new CarSearchService(openSearchClient, MODEL_ID);
 
         service.search("reliable family suv", null, "price_asc");
 
@@ -246,7 +252,7 @@ class CarSearchServiceTest {
     void searchWithMileageAscSortAddsAscendingMileageSortClause() throws IOException {
         SearchResponse<Car> response = mockResponseWithHits(List.of());
         when(openSearchClient.search(any(SearchRequest.class), eq(Car.class))).thenReturn(response);
-        CarSearchService service = new CarSearchService(openSearchClient);
+        CarSearchService service = new CarSearchService(openSearchClient, MODEL_ID);
 
         service.search("reliable family suv", null, "mileage_asc");
 
@@ -267,7 +273,7 @@ class CarSearchServiceTest {
     void searchWithNullSortProducesNoSortClause() throws IOException {
         SearchResponse<Car> response = mockResponseWithHits(List.of());
         when(openSearchClient.search(any(SearchRequest.class), eq(Car.class))).thenReturn(response);
-        CarSearchService service = new CarSearchService(openSearchClient);
+        CarSearchService service = new CarSearchService(openSearchClient, MODEL_ID);
 
         service.search("reliable family suv", null, null);
 

@@ -6,12 +6,12 @@ import jakarta.validation.constraints.NotBlank;
  * Request body for {@code POST /api/cars/search}. See
  * docs/semantic-car-search/design.md — "API".
  *
- * @param query free-text search query.
- * @param filters structured filters to combine with {@code query}. Accepted but
- *     not yet applied — wiring real filter behavior (R2.1) is not part of the
- *     placeholder keyword-search task (task 3, Reqs R1.1/R1.2/R4.1); it's left
- *     for the k-NN backlog item "Combine k-NN relevance with structured filters"
- *     in docs/semantic-car-search/tasks.md. May be {@code null}.
+ * @param query free-text search query, ranked by semantic similarity against
+ *     each listing's {@code description_vector} (see
+ *     docs/semantic-knn-search/design.md).
+ * @param filters structured filters to combine with {@code query}, applied in
+ *     {@code filter} context (unscored, exact) alongside the semantic ranking
+ *     of {@code query} (BOH-14/BOH-22). May be {@code null}.
  * @param sort result ordering; {@code "price_asc"} or {@code "mileage_asc"}, or
  *     {@code null} for the default relevance ranking. See docs/search-sort/tasks.md.
  */
@@ -24,8 +24,8 @@ public record CarSearchRequest(@NotBlank String query, Filters filters, String s
     }
 
     /**
-     * Structured filters. Not yet applied to the query (see {@link CarSearchRequest});
-     * wiring these into search behavior is task 2 per docs/search-filters/tasks.md.
+     * Structured filters, applied in {@code filter} context alongside the
+     * semantic ranking of {@code query} (see {@link CarSearchRequest}).
      *
      * @param priceMax maximum price, inclusive. May be {@code null}.
      * @param yearMin minimum model year, inclusive. May be {@code null}.

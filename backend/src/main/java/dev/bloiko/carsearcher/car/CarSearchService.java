@@ -13,31 +13,35 @@ import org.opensearch.client.opensearch._types.query_dsl.Query;
 import org.opensearch.client.opensearch.core.SearchRequest;
 import org.opensearch.client.opensearch.core.SearchResponse;
 import org.opensearch.client.opensearch.core.search.Hit;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
- * Keyword search over the "cars" index. See docs/semantic-car-search/design.md
- * — "Phase 1 scaffold vs. real implementation" and docs/semantic-car-search/tasks.md
- * task 3, and docs/search-filters/design.md — "Query approach" for the filter
- * combination added on top of it.
+ * Semantic search over the "cars" index. See docs/semantic-knn-search/design.md
+ * — "Query approach" and docs/semantic-knn-search/tasks.md task 1, and
+ * docs/search-filters/design.md — "Query approach" for the filter combination
+ * added on top of it.
  *
- * <p>Runs a {@code bool} query: a {@code multi_match} over description/make/model
- * in {@code must} (drives relevance scoring), plus one {@code filter}-context
- * clause per provided {@link CarSearchRequest.Filters} field (constrains the
- * result set without affecting score). This is still the scaffold placeholder
- * for the real k-NN semantic search that replaces the {@code multi_match} leg
- * once the embedding-model decision (see design.md "Open decision") is made.
+ * <p>Runs a {@code bool} query: a {@code neural} query against
+ * {@code description_vector} in {@code must} (ranks results by semantic
+ * similarity to the free-text query using the configured embedding model),
+ * plus one {@code filter}-context clause per provided
+ * {@link CarSearchRequest.Filters} field (constrains the result set without
+ * affecting score).
  */
 @Service
 public class CarSearchService {
 
     private static final String CARS_INDEX = "cars";
-    private static final List<String> SEARCH_FIELDS = List.of("description", "make", "model");
+    private static final int K = 50;
 
     private final OpenSearchClient openSearchClient;
+    private final String modelId;
 
-    public CarSearchService(OpenSearchClient openSearchClient) {
+    public CarSearchService(
+            OpenSearchClient openSearchClient, @Value("${car-searcher.embedding.model-id:}") String modelId) {
         this.openSearchClient = openSearchClient;
+        this.modelId = modelId;
     }
 
     public List<Car> search(String query, CarSearchRequest.Filters filters, String sort) {
@@ -46,7 +50,8 @@ public class CarSearchService {
         SearchRequest request = new SearchRequest.Builder()
                 .index(CARS_INDEX)
                 .query(q -> q.bool(b -> b
-                        .must(m -> m.multiMatch(mm -> mm.query(query).fields(SEARCH_FIELDS)))
+                        .must(m -> m.neural(
+                                n -> n.field("description_vector").queryText(query).modelId(modelId).k(K)))
                         .filter(filterClauses)))
                 .sort(sortClauses)
                 .build();
