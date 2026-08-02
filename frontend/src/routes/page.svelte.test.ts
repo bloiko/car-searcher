@@ -315,7 +315,9 @@ describe('search page', () => {
 		const [, options] = fetchMock.mock.calls[0];
 		const body = JSON.parse(options.body as string);
 		expect(body).not.toHaveProperty('filters');
-		expect(body).toEqual({ query: 'suv' });
+		// `page` is always sent (BOH-17 task 2) — unlike the optional filters/sort,
+		// `0` is a meaningful default the request body carries explicitly.
+		expect(body).toEqual({ query: 'suv', page: 0 });
 	});
 
 	it('omits a filter input that was set and then cleared back to empty', async () => {
@@ -469,6 +471,121 @@ describe('search page', () => {
 		expect(maxPriceInput.value).toBe('');
 		// ...and the chip itself disappears now that the filter is unset.
 		expect(screen.queryByText(/max price.*25000/i)).toBeNull();
+	});
+
+	it('shows Previous disabled and Next enabled when total exceeds the page size (R3.2)', async () => {
+		const mockResult = {
+			id: '1',
+			make: 'Toyota',
+			model: 'RAV4',
+			year: 2020,
+			price: 25000,
+			mileage: 42000,
+			description: 'A reliable family SUV under 30k',
+			photoUrls: []
+		};
+		const fetchMock = vi.fn().mockResolvedValue({
+			ok: true,
+			// 45 total matches with an assumed pageSize of 20 (the backend default,
+			// BOH-17 task 1): more than one page, so pagination controls must show,
+			// and page 0 means there's a next page but no previous one.
+			json: async () => ({ results: [mockResult], total: 45 })
+		});
+		vi.stubGlobal('fetch', fetchMock);
+
+		render(Page);
+
+		const input = screen.getByRole('textbox', { name: /additional details/i });
+		await fireEvent.input(input, { target: { value: 'suv' } });
+		await fireEvent.submit(input.closest('form')!);
+
+		const previousButton = (await screen.findByRole('button', {
+			name: /^previous$/i
+		})) as HTMLButtonElement;
+		const nextButton = screen.getByRole('button', { name: /^next$/i }) as HTMLButtonElement;
+
+		expect(previousButton.disabled).toBe(true);
+		expect(nextButton.disabled).toBe(false);
+	});
+
+	it('resubmits the search with page: 1 in the request body when Next is clicked (R3.1)', async () => {
+		const mockResult = {
+			id: '1',
+			make: 'Toyota',
+			model: 'RAV4',
+			year: 2020,
+			price: 25000,
+			mileage: 42000,
+			description: 'A reliable family SUV under 30k',
+			photoUrls: []
+		};
+		const fetchMock = vi.fn().mockResolvedValue({
+			ok: true,
+			json: async () => ({ results: [mockResult], total: 45 })
+		});
+		vi.stubGlobal('fetch', fetchMock);
+
+		render(Page);
+
+		const input = screen.getByRole('textbox', { name: /additional details/i });
+		await fireEvent.input(input, { target: { value: 'suv' } });
+		await fireEvent.submit(input.closest('form')!);
+
+		const nextButton = await screen.findByRole('button', { name: /^next$/i });
+		await fireEvent.click(nextButton);
+
+		await waitFor(() => {
+			expect(fetchMock).toHaveBeenCalledTimes(2);
+		});
+
+		const [, options] = fetchMock.mock.calls[1];
+		const body = JSON.parse(options.body as string);
+		expect(body.page).toBe(1);
+	});
+
+	it('resets page to 0 when a new search is submitted, discarding stale pagination (R3.1)', async () => {
+		const mockResult = {
+			id: '1',
+			make: 'Toyota',
+			model: 'RAV4',
+			year: 2020,
+			price: 25000,
+			mileage: 42000,
+			description: 'A reliable family SUV under 30k',
+			photoUrls: []
+		};
+		const fetchMock = vi.fn().mockResolvedValue({
+			ok: true,
+			json: async () => ({ results: [mockResult], total: 45 })
+		});
+		vi.stubGlobal('fetch', fetchMock);
+
+		render(Page);
+
+		const input = screen.getByRole('textbox', { name: /additional details/i });
+		await fireEvent.input(input, { target: { value: 'suv' } });
+		await fireEvent.submit(input.closest('form')!);
+
+		// Move to page 1 first, so there's stale pagination state to discard.
+		const nextButton = await screen.findByRole('button', { name: /^next$/i });
+		await fireEvent.click(nextButton);
+
+		await waitFor(() => {
+			expect(fetchMock).toHaveBeenCalledTimes(2);
+		});
+		const [, pageOneOptions] = fetchMock.mock.calls[1];
+		expect(JSON.parse(pageOneOptions.body as string).page).toBe(1);
+
+		// Submitting the form again is a "new" search — it should start over at
+		// page 0, not resume from the page the user was previously on.
+		await fireEvent.submit(input.closest('form')!);
+
+		await waitFor(() => {
+			expect(fetchMock).toHaveBeenCalledTimes(3);
+		});
+		const [, newSearchOptions] = fetchMock.mock.calls[2];
+		const body = JSON.parse(newSearchOptions.body as string);
+		expect(body.page).toBe(0);
 	});
 
 	it('collapses the result card grid to a single column under a 720px media query', () => {
