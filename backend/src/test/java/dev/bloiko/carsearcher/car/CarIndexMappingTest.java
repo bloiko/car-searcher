@@ -16,10 +16,11 @@ class CarIndexMappingTest {
         Map<String, Property> properties = mapping.properties();
 
         // Matches docs/embedding-indexing/design.md's target "cars" index mapping,
-        // including description_vector (BOH-26).
+        // including description_vector (BOH-26), and docs/listing-detail-page/design.md's
+        // sourceUrl addition (BOH-15).
         assertThat(properties.keySet())
                 .containsExactlyInAnyOrder("id", "make", "model", "year", "price", "mileage", "transmission",
-                        "description", "photoUrls", "description_vector");
+                        "description", "photoUrls", "sourceUrl", "description_vector");
 
         assertThat(properties.get("id").isKeyword()).isTrue();
         assertThat(properties.get("make").isKeyword()).isTrue();
@@ -30,6 +31,7 @@ class CarIndexMappingTest {
         assertThat(properties.get("transmission").isKeyword()).isTrue();
         assertThat(properties.get("description").isText()).isTrue();
         assertThat(properties.get("photoUrls").isKeyword()).isTrue();
+        assertThat(properties.get("sourceUrl").isKeyword()).isTrue();
     }
 
     @Test

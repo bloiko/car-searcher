@@ -14,7 +14,8 @@ public record Car(
         int mileage,
         String transmission,
         String description,
-        List<String> photoUrls) {
+        List<String> photoUrls,
+        String sourceUrl) {
 
     public Car {
         if (id == null || id.isBlank()) {
@@ -35,6 +36,9 @@ public record Car(
         if (mileage < 0) {
             throw new IllegalArgumentException("mileage must not be negative");
         }
+        if (sourceUrl != null && sourceUrl.isBlank()) {
+            throw new IllegalArgumentException("sourceUrl must not be blank");
+        }
         if (photoUrls == null) {
             photoUrls = List.of();
         }
@@ -44,5 +48,13 @@ public record Car(
             }
         }
         photoUrls = List.copyOf(photoUrls);
+    }
+
+    /**
+     * Convenience constructor for the common case where no {@code sourceUrl} is known yet.
+     */
+    public Car(String id, String make, String model, int year, float price, int mileage, String transmission,
+            String description, List<String> photoUrls) {
+        this(id, make, model, year, price, mileage, transmission, description, photoUrls, null);
     }
 }
