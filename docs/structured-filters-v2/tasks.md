@@ -10,4 +10,4 @@ Linear: [BOH-22](https://linear.app/bohdanloiko/issue/BOH-22)
 |---|---|---|---|---|
 | 1 | Add required `transmission` field to `Car` (non-blank validation) and `CarIndexMapping` (keyword); update every existing `Car`-constructing test fixture to compile | in_progress | R2.2 |  |
 | 2 | Add `model`/`transmission` to `CarSearchRequest.Filters`; `CarSearchService` adds matching `term` filter clauses | in_progress | R1.1, R2.1 |  |
-| 3 | Frontend: remove the filters drawer/toggle, make classic filters (make/model/year/mileage/transmission) always visible, add model/transmission inputs, reframe the search label/placeholder as residual/descriptive | todo | R3.1, R4.1 | |
+| 3 | Frontend: remove the filters drawer/toggle, make classic filters (make/model/year/mileage/transmission) always visible, add model/transmission inputs, reframe the search label/placeholder as residual/descriptive | in_progress | R3.1, R4.1 |  |
