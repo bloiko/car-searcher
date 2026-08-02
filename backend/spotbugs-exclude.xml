@@ -22,6 +22,10 @@
         <Class name="dev.bloiko.carsearcher.car.CarIndexBootstrap" />
         <Bug pattern="EI_EXPOSE_REP2" />
     </Match>
+    <Match>
+        <Class name="dev.bloiko.carsearcher.car.EmbeddingPipelineBootstrap" />
+        <Bug pattern="EI_EXPOSE_REP2" />
+    </Match>
     <!--
       EI_EXPOSE_REP only, only for Car.photoUrls(). The compact constructor
       assigns photoUrls = List.copyOf(photoUrls), so the field is already an
