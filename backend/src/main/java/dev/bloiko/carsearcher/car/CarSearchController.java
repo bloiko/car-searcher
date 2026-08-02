@@ -26,7 +26,8 @@ public class CarSearchController {
 
     @PostMapping("/search")
     public ResponseEntity<CarSearchResponse> search(@Valid @RequestBody CarSearchRequest request) {
-        return ResponseEntity.ok(CarSearchResponse.of(
-                carSearchService.search(request.query(), request.filters(), request.sort())));
+        CarSearchService.SearchResult result = carSearchService.search(
+                request.query(), request.filters(), request.sort(), request.page(), request.pageSize());
+        return ResponseEntity.ok(CarSearchResponse.of(result.cars(), result.total()));
     }
 }

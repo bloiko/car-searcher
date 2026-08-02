@@ -10,6 +10,11 @@
 		photoUrls: string[];
 	};
 
+	// Fixed page size for this round (BOH-17): no page-size selector in the UI,
+	// the backend defaults to 20 and doesn't echo `pageSize` back, so the
+	// frontend keeps its own copy in lockstep with that default.
+	const PAGE_SIZE = 20;
+
 	let query = $state('');
 	let priceMax = $state('');
 	let yearMin = $state('');
@@ -18,6 +23,8 @@
 	let model = $state('');
 	let transmission = $state('');
 	let sort = $state('');
+	let page = $state(0);
+	let total = $state(0);
 	let results = $state<CarResult[] | null>(null);
 	let loading = $state(false);
 	let error = $state('');
@@ -52,8 +59,10 @@
 		).filter((chip) => chip.value !== '')
 	);
 
-	async function handleSubmit(event: SubmitEvent) {
-		event.preventDefault();
+	// Shared by "form submitted" and "pagination button clicked" — a page change
+	// isn't a form SubmitEvent, so it can't reuse handleSubmit directly, but both
+	// need the identical fetch-and-render logic.
+	async function performSearch() {
 		loading = true;
 		error = '';
 		try {
@@ -65,7 +74,10 @@
 			if (model !== '') filters.model = model;
 			if (transmission !== '') filters.transmission = transmission;
 
-			const requestBody: Record<string, unknown> = { query };
+			// Unlike the optional filters/sort above, `page` is always sent: `0`
+			// is a meaningful, deliberate default (not "unset"), and the backend
+			// already treats an absent page the same as page 0.
+			const requestBody: Record<string, unknown> = { query, page };
 			if (Object.keys(filters).length > 0) {
 				requestBody.filters = filters;
 			}
@@ -83,12 +95,34 @@
 
 			const data = await response.json();
 			results = data.results ?? [];
+			total = data.total ?? 0;
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Search failed';
 			results = [];
+			total = 0;
 		} finally {
 			loading = false;
 		}
+	}
+
+	async function handleSubmit(event: SubmitEvent) {
+		event.preventDefault();
+		// A submitted form means query/filters/sort potentially changed — a
+		// fresh search should start at page 1, not resume stale pagination.
+		page = 0;
+		await performSearch();
+	}
+
+	async function goToPreviousPage() {
+		if (page === 0) return;
+		page -= 1;
+		await performSearch();
+	}
+
+	async function goToNextPage() {
+		if ((page + 1) * PAGE_SIZE >= total) return;
+		page += 1;
+		await performSearch();
 	}
 </script>
 
@@ -201,6 +235,16 @@
 			{/each}
 		</div>
 	{/if}
+{/if}
+
+{#if results !== null && total > PAGE_SIZE}
+	<div class="pagination">
+		<button type="button" onclick={goToPreviousPage} disabled={page === 0}>Previous</button>
+		<span class="pagination-info">Page {page + 1} of {Math.ceil(total / PAGE_SIZE)}</span>
+		<button type="button" onclick={goToNextPage} disabled={(page + 1) * PAGE_SIZE >= total}
+			>Next</button
+		>
+	</div>
 {/if}
 
 <style>
@@ -512,6 +556,30 @@
 		font-size: var(--text-sm);
 		color: var(--color-text-muted);
 		margin: 0;
+	}
+
+	.pagination {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: var(--space-4);
+		max-width: 40rem;
+		margin: 0 var(--space-4) var(--space-6);
+	}
+
+	.pagination button {
+		align-self: auto;
+	}
+
+	.pagination button:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+
+	.pagination-info {
+		font-family: var(--font-body);
+		font-size: var(--text-sm);
+		color: var(--color-text-muted);
 	}
 
 	@media (max-width: 720px) {

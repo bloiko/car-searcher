@@ -18,6 +18,7 @@ import org.opensearch.client.opensearch.core.SearchRequest;
 import org.opensearch.client.opensearch.core.SearchResponse;
 import org.opensearch.client.opensearch.core.search.Hit;
 import org.opensearch.client.opensearch.core.search.HitsMetadata;
+import org.opensearch.client.opensearch.core.search.TotalHits;
 
 import java.io.IOException;
 import java.util.List;
@@ -25,6 +26,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -46,7 +48,7 @@ class CarSearchServiceTest {
         when(openSearchClient.search(any(SearchRequest.class), eq(Car.class))).thenReturn(response);
         CarSearchService service = new CarSearchService(openSearchClient, MODEL_ID);
 
-        List<Car> results = service.search("reliable family suv", null, null);
+        CarSearchService.SearchResult result = service.search("reliable family suv", null, null, null, null);
 
         ArgumentCaptor<SearchRequest> captor = ArgumentCaptor.forClass(SearchRequest.class);
         verify(openSearchClient).search(captor.capture(), eq(Car.class));
@@ -63,7 +65,7 @@ class CarSearchServiceTest {
         assertThat(neuralQuery.k()).isEqualTo(50);
         assertThat(boolQuery.filter()).isEmpty();
 
-        assertThat(results).containsExactly(matchedCar);
+        assertThat(result.cars()).containsExactly(matchedCar);
     }
 
     @Test
@@ -74,7 +76,7 @@ class CarSearchServiceTest {
         CarSearchService service = new CarSearchService(openSearchClient, MODEL_ID);
         CarSearchRequest.Filters filters = new CarSearchRequest.Filters(null, null, null, null, null, null);
 
-        service.search("reliable family suv", filters, null);
+        service.search("reliable family suv", filters, null, null, null);
 
         ArgumentCaptor<SearchRequest> captor = ArgumentCaptor.forClass(SearchRequest.class);
         verify(openSearchClient).search(captor.capture(), eq(Car.class));
@@ -91,7 +93,7 @@ class CarSearchServiceTest {
         CarSearchService service = new CarSearchService(openSearchClient, MODEL_ID);
         CarSearchRequest.Filters filters = new CarSearchRequest.Filters(null, 2018, null, null, null, null);
 
-        service.search("reliable family suv", filters, null);
+        service.search("reliable family suv", filters, null, null, null);
 
         ArgumentCaptor<SearchRequest> captor = ArgumentCaptor.forClass(SearchRequest.class);
         verify(openSearchClient).search(captor.capture(), eq(Car.class));
@@ -113,7 +115,7 @@ class CarSearchServiceTest {
         CarSearchService service = new CarSearchService(openSearchClient, MODEL_ID);
         CarSearchRequest.Filters filters = new CarSearchRequest.Filters(null, null, 50_000, null, null, null);
 
-        service.search("reliable family suv", filters, null);
+        service.search("reliable family suv", filters, null, null, null);
 
         ArgumentCaptor<SearchRequest> captor = ArgumentCaptor.forClass(SearchRequest.class);
         verify(openSearchClient).search(captor.capture(), eq(Car.class));
@@ -135,7 +137,7 @@ class CarSearchServiceTest {
         CarSearchService service = new CarSearchService(openSearchClient, MODEL_ID);
         CarSearchRequest.Filters filters = new CarSearchRequest.Filters(null, null, null, "Toyota", null, null);
 
-        service.search("reliable family suv", filters, null);
+        service.search("reliable family suv", filters, null, null, null);
 
         ArgumentCaptor<SearchRequest> captor = ArgumentCaptor.forClass(SearchRequest.class);
         verify(openSearchClient).search(captor.capture(), eq(Car.class));
@@ -157,7 +159,7 @@ class CarSearchServiceTest {
         CarSearchService service = new CarSearchService(openSearchClient, MODEL_ID);
         CarSearchRequest.Filters filters = new CarSearchRequest.Filters(null, null, null, null, "RAV4", null);
 
-        service.search("reliable family suv", filters, null);
+        service.search("reliable family suv", filters, null, null, null);
 
         ArgumentCaptor<SearchRequest> captor = ArgumentCaptor.forClass(SearchRequest.class);
         verify(openSearchClient).search(captor.capture(), eq(Car.class));
@@ -179,7 +181,7 @@ class CarSearchServiceTest {
         CarSearchService service = new CarSearchService(openSearchClient, MODEL_ID);
         CarSearchRequest.Filters filters = new CarSearchRequest.Filters(null, null, null, null, null, "Automatic");
 
-        service.search("reliable family suv", filters, null);
+        service.search("reliable family suv", filters, null, null, null);
 
         ArgumentCaptor<SearchRequest> captor = ArgumentCaptor.forClass(SearchRequest.class);
         verify(openSearchClient).search(captor.capture(), eq(Car.class));
@@ -201,7 +203,7 @@ class CarSearchServiceTest {
         CarSearchService service = new CarSearchService(openSearchClient, MODEL_ID);
         CarSearchRequest.Filters filters = new CarSearchRequest.Filters(30_000f, null, null, null, null, null);
 
-        service.search("reliable family suv", filters, null);
+        service.search("reliable family suv", filters, null, null, null);
 
         ArgumentCaptor<SearchRequest> captor = ArgumentCaptor.forClass(SearchRequest.class);
         verify(openSearchClient).search(captor.capture(), eq(Car.class));
@@ -233,7 +235,7 @@ class CarSearchServiceTest {
         when(openSearchClient.search(any(SearchRequest.class), eq(Car.class))).thenReturn(response);
         CarSearchService service = new CarSearchService(openSearchClient, MODEL_ID);
 
-        service.search("reliable family suv", null, "price_asc");
+        service.search("reliable family suv", null, "price_asc", null, null);
 
         ArgumentCaptor<SearchRequest> captor = ArgumentCaptor.forClass(SearchRequest.class);
         verify(openSearchClient).search(captor.capture(), eq(Car.class));
@@ -254,7 +256,7 @@ class CarSearchServiceTest {
         when(openSearchClient.search(any(SearchRequest.class), eq(Car.class))).thenReturn(response);
         CarSearchService service = new CarSearchService(openSearchClient, MODEL_ID);
 
-        service.search("reliable family suv", null, "mileage_asc");
+        service.search("reliable family suv", null, "mileage_asc", null, null);
 
         ArgumentCaptor<SearchRequest> captor = ArgumentCaptor.forClass(SearchRequest.class);
         verify(openSearchClient).search(captor.capture(), eq(Car.class));
@@ -275,12 +277,58 @@ class CarSearchServiceTest {
         when(openSearchClient.search(any(SearchRequest.class), eq(Car.class))).thenReturn(response);
         CarSearchService service = new CarSearchService(openSearchClient, MODEL_ID);
 
-        service.search("reliable family suv", null, null);
+        service.search("reliable family suv", null, null, null, null);
 
         ArgumentCaptor<SearchRequest> captor = ArgumentCaptor.forClass(SearchRequest.class);
         verify(openSearchClient).search(captor.capture(), eq(Car.class));
 
         assertThat(captor.getValue().sort()).isEmpty();
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void searchAppliesFromAndSizeComputedFromPageAndPageSize() throws IOException {
+        SearchResponse<Car> response = mockResponseWithHits(List.of());
+        when(openSearchClient.search(any(SearchRequest.class), eq(Car.class))).thenReturn(response);
+        CarSearchService service = new CarSearchService(openSearchClient, MODEL_ID);
+
+        service.search("reliable family suv", null, null, 2, 10);
+
+        ArgumentCaptor<SearchRequest> captor = ArgumentCaptor.forClass(SearchRequest.class);
+        verify(openSearchClient).search(captor.capture(), eq(Car.class));
+        SearchRequest request = captor.getValue();
+
+        assertThat(request.from()).isEqualTo(20);
+        assertThat(request.size()).isEqualTo(10);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void searchWithNullPageAndPageSizeDefaultsFromToZeroAndSizeToTwenty() throws IOException {
+        SearchResponse<Car> response = mockResponseWithHits(List.of());
+        when(openSearchClient.search(any(SearchRequest.class), eq(Car.class))).thenReturn(response);
+        CarSearchService service = new CarSearchService(openSearchClient, MODEL_ID);
+
+        service.search("reliable family suv", null, null, null, null);
+
+        ArgumentCaptor<SearchRequest> captor = ArgumentCaptor.forClass(SearchRequest.class);
+        verify(openSearchClient).search(captor.capture(), eq(Car.class));
+        SearchRequest request = captor.getValue();
+
+        assertThat(request.from()).isEqualTo(0);
+        assertThat(request.size()).isEqualTo(20);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void searchReturnsTotalFromResponseHitsTotal() throws IOException {
+        SearchResponse<Car> response = mockResponseWithHits(List.of(), 137);
+        when(openSearchClient.search(any(SearchRequest.class), eq(Car.class))).thenReturn(response);
+        CarSearchService service = new CarSearchService(openSearchClient, MODEL_ID);
+
+        CarSearchService.SearchResult result = service.search("reliable family suv", null, null, null, null);
+
+        assertThat(result.total()).isEqualTo(137L);
     }
 
     /**
@@ -294,6 +342,19 @@ class CarSearchServiceTest {
      */
     @SuppressWarnings("unchecked")
     private static SearchResponse<Car> mockResponseWithHits(List<Car> cars) {
+        return mockResponseWithHits(cars, 0);
+    }
+
+    /**
+     * Overload that also stubs {@code hits().total().value()} for tests asserting on
+     * the {@code total} extraction. The {@code total()}/{@code value()} stubs are
+     * {@code lenient} because most callers of this helper don't care about {@code total}
+     * -- without {@code lenient}, MockitoExtension's default strict-stubbing would fail
+     * every other test sharing this helper with {@code UnnecessaryStubbingException} the
+     * moment those tests don't exercise {@code total()}.
+     */
+    @SuppressWarnings("unchecked")
+    private static SearchResponse<Car> mockResponseWithHits(List<Car> cars, long total) {
         SearchResponse<Car> response = mock(SearchResponse.class);
         HitsMetadata<Car> hitsMetadata = mock(HitsMetadata.class);
         List<Hit<Car>> hits = cars.stream()
@@ -304,6 +365,9 @@ class CarSearchServiceTest {
                 })
                 .toList();
         when(hitsMetadata.hits()).thenReturn(hits);
+        TotalHits totalHits = mock(TotalHits.class);
+        lenient().when(totalHits.value()).thenReturn(total);
+        lenient().when(hitsMetadata.total()).thenReturn(totalHits);
         when(response.hits()).thenReturn(hitsMetadata);
         return response;
     }

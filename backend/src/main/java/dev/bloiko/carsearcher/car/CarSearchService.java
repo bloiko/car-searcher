@@ -44,9 +44,12 @@ public class CarSearchService {
         this.modelId = modelId;
     }
 
-    public List<Car> search(String query, CarSearchRequest.Filters filters, String sort) {
+    public SearchResult search(
+            String query, CarSearchRequest.Filters filters, String sort, Integer page, Integer pageSize) {
         List<Query> filterClauses = buildFilterClauses(filters);
         List<SortOptions> sortClauses = buildSortClauses(sort);
+        int effectivePage = page != null ? page : 0;
+        int effectivePageSize = pageSize != null ? pageSize : 20;
         SearchRequest request = new SearchRequest.Builder()
                 .index(CARS_INDEX)
                 .query(q -> q.bool(b -> b
@@ -54,15 +57,33 @@ public class CarSearchService {
                                 n -> n.field("description_vector").queryText(query).modelId(modelId).k(K)))
                         .filter(filterClauses)))
                 .sort(sortClauses)
+                .from(effectivePage * effectivePageSize)
+                .size(effectivePageSize)
                 .build();
         try {
             SearchResponse<Car> response = openSearchClient.search(request, Car.class);
             // Deliberately not response.documents(): confirmed against a real cluster
             // (no mock can catch this) that it returns an empty list even when hits
             // genuinely have a non-null source -- see docs/lessons/. Map hits by hand.
-            return response.hits().hits().stream().map(Hit::source).toList();
+            List<Car> cars = response.hits().hits().stream().map(Hit::source).toList();
+            long total = response.hits().total().value();
+            return new SearchResult(cars, total);
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to search cars index for query \"" + query + "\"", e);
+        }
+    }
+
+    /**
+     * Return type of {@link #search(String, CarSearchRequest.Filters, String, Integer, Integer)}.
+     * See docs/search-pagination/design.md — "Data model".
+     *
+     * @param cars the current page of matching cars.
+     * @param total total number of matching listings (not just the current page's count).
+     */
+    public record SearchResult(List<Car> cars, long total) {
+
+        public SearchResult {
+            cars = List.copyOf(cars);
         }
     }
 
