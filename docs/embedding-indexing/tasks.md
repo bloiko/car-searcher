@@ -9,6 +9,6 @@ Linear: [BOH-26](https://linear.app/bohdanloiko/issue/BOH-26)
 | # | Task | Status | Reqs | PR |
 |---|---|---|---|---|
 | 1 | `CarIndexMapping` gains `description_vector` (knn_vector, dim 384); `CarIndexBootstrap`'s index creation gains `index.knn: true` and `default_pipeline` settings | in_progress | R1.2 |  |
-| 2 | New `EmbeddingPipelineBootstrap` (`CommandLineRunner`, ordered before `CarIndexBootstrap`) idempotently creates the `text_embedding` ingest pipeline; fails fast if the model ID config is blank | todo | R1.1, R2.1, R2.2 | |
+| 2 | New `EmbeddingPipelineBootstrap` (`CommandLineRunner`, ordered before `CarIndexBootstrap`) idempotently creates the `text_embedding` ingest pipeline; fails fast if the model ID config is blank | in_progress | R1.1, R2.1, R2.2 |  |
 
 Done directly (not through the TDD loop, since it's infra scaffolding rather than testable application behavior — same category as `docker-compose.yml`/pom.xml bootstrap in the original `semantic-car-search` tracker): `backend/scripts/register-embedding-model.sh` + README documentation for the one-time model registration/deployment step.
