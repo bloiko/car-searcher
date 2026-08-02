@@ -31,8 +31,11 @@ public record CarSearchRequest(@NotBlank String query, Filters filters, String s
      * @param yearMin minimum model year, inclusive. May be {@code null}.
      * @param mileageMax maximum mileage, inclusive. May be {@code null}.
      * @param make exact match against {@link Car#make}. May be {@code null}.
+     * @param model exact match against {@link Car#model}. May be {@code null}.
+     * @param transmission exact match against {@link Car#transmission}. May be {@code null}.
      */
-    public record Filters(Float priceMax, Integer yearMin, Integer mileageMax, String make) {
+    public record Filters(
+            Float priceMax, Integer yearMin, Integer mileageMax, String make, String model, String transmission) {
 
         public Filters {
             if (priceMax != null && priceMax < 0) {
@@ -49,7 +52,7 @@ public record CarSearchRequest(@NotBlank String query, Filters filters, String s
          * @param priceMax maximum price, inclusive. May be {@code null}.
          */
         public Filters(Float priceMax) {
-            this(priceMax, null, null, null);
+            this(priceMax, null, null, null, null, null);
         }
     }
 }

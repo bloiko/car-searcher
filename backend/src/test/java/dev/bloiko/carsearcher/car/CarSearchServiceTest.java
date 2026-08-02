@@ -38,8 +38,8 @@ class CarSearchServiceTest {
     @Test
     @SuppressWarnings("unchecked")
     void searchesCarsIndexWithMultiMatchOverDescriptionMakeModelAndMapsHitsToCars() throws IOException {
-        Car matchedCar = new Car("car-1", "Toyota", "RAV4", 2021, 27_500f, 18_000, "A reliable family SUV",
-                List.of());
+        Car matchedCar = new Car("car-1", "Toyota", "RAV4", 2021, 27_500f, 18_000, "Automatic",
+                "A reliable family SUV", List.of());
         SearchResponse<Car> response = mockResponseWithHits(List.of(matchedCar));
         when(openSearchClient.search(any(SearchRequest.class), eq(Car.class))).thenReturn(response);
         CarSearchService service = new CarSearchService(openSearchClient);
@@ -68,7 +68,7 @@ class CarSearchServiceTest {
         SearchResponse<Car> response = mockResponseWithHits(List.of());
         when(openSearchClient.search(any(SearchRequest.class), eq(Car.class))).thenReturn(response);
         CarSearchService service = new CarSearchService(openSearchClient);
-        CarSearchRequest.Filters filters = new CarSearchRequest.Filters(null, null, null, null);
+        CarSearchRequest.Filters filters = new CarSearchRequest.Filters(null, null, null, null, null, null);
 
         service.search("reliable family suv", filters, null);
 
@@ -85,7 +85,7 @@ class CarSearchServiceTest {
         SearchResponse<Car> response = mockResponseWithHits(List.of());
         when(openSearchClient.search(any(SearchRequest.class), eq(Car.class))).thenReturn(response);
         CarSearchService service = new CarSearchService(openSearchClient);
-        CarSearchRequest.Filters filters = new CarSearchRequest.Filters(null, 2018, null, null);
+        CarSearchRequest.Filters filters = new CarSearchRequest.Filters(null, 2018, null, null, null, null);
 
         service.search("reliable family suv", filters, null);
 
@@ -107,7 +107,7 @@ class CarSearchServiceTest {
         SearchResponse<Car> response = mockResponseWithHits(List.of());
         when(openSearchClient.search(any(SearchRequest.class), eq(Car.class))).thenReturn(response);
         CarSearchService service = new CarSearchService(openSearchClient);
-        CarSearchRequest.Filters filters = new CarSearchRequest.Filters(null, null, 50_000, null);
+        CarSearchRequest.Filters filters = new CarSearchRequest.Filters(null, null, 50_000, null, null, null);
 
         service.search("reliable family suv", filters, null);
 
@@ -129,7 +129,7 @@ class CarSearchServiceTest {
         SearchResponse<Car> response = mockResponseWithHits(List.of());
         when(openSearchClient.search(any(SearchRequest.class), eq(Car.class))).thenReturn(response);
         CarSearchService service = new CarSearchService(openSearchClient);
-        CarSearchRequest.Filters filters = new CarSearchRequest.Filters(null, null, null, "Toyota");
+        CarSearchRequest.Filters filters = new CarSearchRequest.Filters(null, null, null, "Toyota", null, null);
 
         service.search("reliable family suv", filters, null);
 
@@ -147,11 +147,55 @@ class CarSearchServiceTest {
 
     @Test
     @SuppressWarnings("unchecked")
+    void searchWithModelFilterAddsTermFilterClauseOnModel() throws IOException {
+        SearchResponse<Car> response = mockResponseWithHits(List.of());
+        when(openSearchClient.search(any(SearchRequest.class), eq(Car.class))).thenReturn(response);
+        CarSearchService service = new CarSearchService(openSearchClient);
+        CarSearchRequest.Filters filters = new CarSearchRequest.Filters(null, null, null, null, "RAV4", null);
+
+        service.search("reliable family suv", filters, null);
+
+        ArgumentCaptor<SearchRequest> captor = ArgumentCaptor.forClass(SearchRequest.class);
+        verify(openSearchClient).search(captor.capture(), eq(Car.class));
+        BoolQuery boolQuery = captor.getValue().query().bool();
+
+        assertThat(boolQuery.filter()).hasSize(1);
+        Query filterClause = boolQuery.filter().get(0);
+        assertThat(filterClause.isTerm()).isTrue();
+        TermQuery modelTerm = filterClause.term();
+        assertThat(modelTerm.field()).isEqualTo("model");
+        assertThat(modelTerm.value().stringValue()).isEqualTo("RAV4");
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void searchWithTransmissionFilterAddsTermFilterClauseOnTransmission() throws IOException {
+        SearchResponse<Car> response = mockResponseWithHits(List.of());
+        when(openSearchClient.search(any(SearchRequest.class), eq(Car.class))).thenReturn(response);
+        CarSearchService service = new CarSearchService(openSearchClient);
+        CarSearchRequest.Filters filters = new CarSearchRequest.Filters(null, null, null, null, null, "Automatic");
+
+        service.search("reliable family suv", filters, null);
+
+        ArgumentCaptor<SearchRequest> captor = ArgumentCaptor.forClass(SearchRequest.class);
+        verify(openSearchClient).search(captor.capture(), eq(Car.class));
+        BoolQuery boolQuery = captor.getValue().query().bool();
+
+        assertThat(boolQuery.filter()).hasSize(1);
+        Query filterClause = boolQuery.filter().get(0);
+        assertThat(filterClause.isTerm()).isTrue();
+        TermQuery transmissionTerm = filterClause.term();
+        assertThat(transmissionTerm.field()).isEqualTo("transmission");
+        assertThat(transmissionTerm.value().stringValue()).isEqualTo("Automatic");
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
     void searchWithPriceMaxFilterAddsRangeFilterClauseOnPriceWithoutAffectingMustClause() throws IOException {
         SearchResponse<Car> response = mockResponseWithHits(List.of());
         when(openSearchClient.search(any(SearchRequest.class), eq(Car.class))).thenReturn(response);
         CarSearchService service = new CarSearchService(openSearchClient);
-        CarSearchRequest.Filters filters = new CarSearchRequest.Filters(30_000f, null, null, null);
+        CarSearchRequest.Filters filters = new CarSearchRequest.Filters(30_000f, null, null, null, null, null);
 
         service.search("reliable family suv", filters, null);
 

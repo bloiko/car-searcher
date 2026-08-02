@@ -16,7 +16,7 @@ class CarSearchRequestTest {
     @Test
     void rejectsNegativeMileageMax() {
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> new CarSearchRequest.Filters(null, null, -1, null))
+                .isThrownBy(() -> new CarSearchRequest.Filters(null, null, -1, null, null, null))
                 .withMessageContaining("mileageMax");
     }
 

@@ -90,6 +90,13 @@ public class CarSearchService {
         if (filters.make() != null) {
             clauses.add(Query.of(q -> q.term(t -> t.field("make").value(FieldValue.of(filters.make())))));
         }
+        if (filters.model() != null) {
+            clauses.add(Query.of(q -> q.term(t -> t.field("model").value(FieldValue.of(filters.model())))));
+        }
+        if (filters.transmission() != null) {
+            clauses.add(
+                    Query.of(q -> q.term(t -> t.field("transmission").value(FieldValue.of(filters.transmission())))));
+        }
         return clauses;
     }
 }
