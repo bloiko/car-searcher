@@ -14,4 +14,4 @@ THE SYSTEM SHALL include `mileage` on every `CarSearchResponse.CarSearchResult`,
 
 | # | Task | Status | Reqs | PR |
 |---|---|---|---|---|
-| 1 | Add `mileage` to `CarSearchResponse.CarSearchResult` and its `.from(Car)` factory; update the stale javadoc that says it's deliberately omitted | todo | (see acceptance criterion above) | |
+| 1 | Add `mileage` to `CarSearchResponse.CarSearchResult` and its `.from(Car)` factory; update the stale javadoc that says it's deliberately omitted | in_progress | (see acceptance criterion above) |  |
