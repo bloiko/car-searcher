@@ -12,6 +12,7 @@ public record Car(
         int year,
         float price,
         int mileage,
+        String transmission,
         String description,
         List<String> photoUrls) {
 
@@ -24,6 +25,9 @@ public record Car(
         }
         if (model == null || model.isBlank()) {
             throw new IllegalArgumentException("model must not be blank");
+        }
+        if (transmission == null || transmission.isBlank()) {
+            throw new IllegalArgumentException("transmission must not be blank");
         }
         if (price < 0) {
             throw new IllegalArgumentException("price must not be negative");

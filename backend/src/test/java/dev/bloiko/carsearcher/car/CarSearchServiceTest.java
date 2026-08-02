@@ -38,8 +38,8 @@ class CarSearchServiceTest {
     @Test
     @SuppressWarnings("unchecked")
     void searchesCarsIndexWithMultiMatchOverDescriptionMakeModelAndMapsHitsToCars() throws IOException {
-        Car matchedCar = new Car("car-1", "Toyota", "RAV4", 2021, 27_500f, 18_000, "A reliable family SUV",
-                List.of());
+        Car matchedCar = new Car("car-1", "Toyota", "RAV4", 2021, 27_500f, 18_000, "Automatic",
+                "A reliable family SUV", List.of());
         SearchResponse<Car> response = mockResponseWithHits(List.of(matchedCar));
         when(openSearchClient.search(any(SearchRequest.class), eq(Car.class))).thenReturn(response);
         CarSearchService service = new CarSearchService(openSearchClient);

@@ -28,7 +28,8 @@ class CarIndexingServiceTest {
     @SuppressWarnings("unchecked")
     void indexesCarUnderCarsIndexWithCarIdAsDocumentId() throws IOException {
         when(openSearchClient.index(any(IndexRequest.class))).thenReturn(mock(IndexResponse.class));
-        Car car = new Car("car-1", "Toyota", "Corolla", 2020, 18_999f, 32_000, "A reliable sedan", List.of());
+        Car car = new Car("car-1", "Toyota", "Corolla", 2020, 18_999f, 32_000, "Automatic", "A reliable sedan",
+                List.of());
         CarIndexingService service = new CarIndexingService(openSearchClient);
 
         service.index(car);

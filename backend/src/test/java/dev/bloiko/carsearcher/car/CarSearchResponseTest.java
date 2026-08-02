@@ -10,7 +10,7 @@ class CarSearchResponseTest {
 
     @Test
     void carSearchResultIncludesPhotoUrlsFromCar() {
-        Car car = new Car("car-1", "Toyota", "RAV4", 2021, 27_500f, 18_000, "A reliable family SUV",
+        Car car = new Car("car-1", "Toyota", "RAV4", 2021, 27_500f, 18_000, "Automatic", "A reliable family SUV",
                 List.of("https://example.com/1.jpg", "https://example.com/2.jpg"));
 
         CarSearchResponse response = CarSearchResponse.of(List.of(car));
