@@ -15,11 +15,12 @@
 	let yearMin = $state('');
 	let mileageMax = $state('');
 	let make = $state('');
+	let model = $state('');
+	let transmission = $state('');
 	let sort = $state('');
 	let results = $state<CarResult[] | null>(null);
 	let loading = $state(false);
 	let error = $state('');
-	let filtersOpen = $state(false);
 
 	type FilterChip = {
 		key: string;
@@ -39,7 +40,14 @@
 					value: mileageMax,
 					clear: () => (mileageMax = '')
 				},
-				{ key: 'make', label: 'Make', value: make, clear: () => (make = '') }
+				{ key: 'make', label: 'Make', value: make, clear: () => (make = '') },
+				{ key: 'model', label: 'Model', value: model, clear: () => (model = '') },
+				{
+					key: 'transmission',
+					label: 'Transmission',
+					value: transmission,
+					clear: () => (transmission = '')
+				}
 			] as FilterChip[]
 		).filter((chip) => chip.value !== '')
 	);
@@ -54,6 +62,8 @@
 			if (yearMin !== '') filters.yearMin = Number(yearMin);
 			if (mileageMax !== '') filters.mileageMax = Number(mileageMax);
 			if (make !== '') filters.make = make;
+			if (model !== '') filters.model = model;
+			if (transmission !== '') filters.transmission = transmission;
 
 			const requestBody: Record<string, unknown> = { query };
 			if (Object.keys(filters).length > 0) {
@@ -85,9 +95,15 @@
 <h1>Car Search</h1>
 
 <form onsubmit={handleSubmit}>
-	<label for="search-input" class="search-label">Search</label>
+	<label for="search-input" class="search-label">Additional details</label>
 	<div class="search-row">
-		<input id="search-input" class="search-input" type="text" bind:value={query} />
+		<input
+			id="search-input"
+			class="search-input"
+			type="text"
+			placeholder="e.g. Sportline, Laurin & Klement, leather seats"
+			bind:value={query}
+		/>
 		<button type="submit" class="search-submit">Search</button>
 	</div>
 
@@ -97,15 +113,6 @@
 		<option value="price_asc">Price: low to high</option>
 		<option value="mileage_asc">Mileage: low to high</option>
 	</select>
-
-	<button
-		type="button"
-		class="filters-toggle"
-		aria-expanded={filtersOpen}
-		onclick={() => (filtersOpen = !filtersOpen)}
-	>
-		Filters
-	</button>
 
 	{#if filterChips.length > 0}
 		<div class="filter-chips">
@@ -125,36 +132,45 @@
 		</div>
 	{/if}
 
-	{#if filtersOpen}
-		<div class="filters-drawer">
-			<label for="price-max-input">Max price</label>
-			<input
-				id="price-max-input"
-				type="number"
-				value={priceMax}
-				oninput={(e) => (priceMax = e.currentTarget.value)}
-			/>
+	<div class="filters-section">
+		<label for="price-max-input">Max price</label>
+		<input
+			id="price-max-input"
+			type="number"
+			value={priceMax}
+			oninput={(e) => (priceMax = e.currentTarget.value)}
+		/>
 
-			<label for="year-min-input">Min year</label>
-			<input
-				id="year-min-input"
-				type="number"
-				value={yearMin}
-				oninput={(e) => (yearMin = e.currentTarget.value)}
-			/>
+		<label for="year-min-input">Min year</label>
+		<input
+			id="year-min-input"
+			type="number"
+			value={yearMin}
+			oninput={(e) => (yearMin = e.currentTarget.value)}
+		/>
 
-			<label for="mileage-max-input">Max mileage</label>
-			<input
-				id="mileage-max-input"
-				type="number"
-				value={mileageMax}
-				oninput={(e) => (mileageMax = e.currentTarget.value)}
-			/>
+		<label for="mileage-max-input">Max mileage</label>
+		<input
+			id="mileage-max-input"
+			type="number"
+			value={mileageMax}
+			oninput={(e) => (mileageMax = e.currentTarget.value)}
+		/>
 
-			<label for="make-input">Make</label>
-			<input id="make-input" type="text" bind:value={make} />
-		</div>
-	{/if}
+		<label for="make-input">Make</label>
+		<input id="make-input" type="text" bind:value={make} />
+
+		<label for="model-input">Model</label>
+		<input id="model-input" type="text" bind:value={model} />
+
+		<label for="transmission-input">Transmission</label>
+		<select id="transmission-input" bind:value={transmission}>
+			<option value="">Any</option>
+			<option value="Automatic">Automatic</option>
+			<option value="Manual">Manual</option>
+			<option value="CVT">CVT</option>
+		</select>
+	</div>
 </form>
 
 {#if loading}
@@ -298,10 +314,10 @@
 		cursor: pointer;
 	}
 
-	/* The search input is the primary, most visually prominent control on the
-	   page: it sits first, is visually larger than the filter inputs, and
-	   shares a row with its submit button. The filter inputs stay visually
-	   secondary, tucked behind the "Filters" toggle in a collapsible drawer. */
+	/* The classic filters (make/model/year/mileage/transmission) are always
+	   visible in .filters-section below, not tucked behind a toggle — the
+	   search input here is for residual/descriptive text only, not the
+	   single primary control. */
 	.search-row {
 		display: flex;
 		align-items: flex-end;
@@ -340,16 +356,7 @@
 		padding-right: var(--space-3);
 	}
 
-	.filters-toggle {
-		align-self: flex-start;
-		font-size: var(--text-sm);
-		font-weight: 600;
-		color: var(--color-text);
-		background-color: var(--color-surface);
-		border: 1px solid var(--color-border);
-	}
-
-	.filters-drawer {
+	.filters-section {
 		display: flex;
 		flex-direction: column;
 		gap: var(--space-4);

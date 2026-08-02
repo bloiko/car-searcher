@@ -28,7 +28,7 @@ describe('search page', () => {
 
 		const { container } = render(Page);
 
-		const input = screen.getByRole('textbox', { name: /search/i });
+		const input = screen.getByRole('textbox', { name: /additional details/i });
 		await fireEvent.input(input, { target: { value: 'reliable family suv under 30k' } });
 		await fireEvent.submit(input.closest('form')!);
 
@@ -61,7 +61,7 @@ describe('search page', () => {
 
 		const { container } = render(Page);
 
-		const input = screen.getByRole('textbox', { name: /search/i });
+		const input = screen.getByRole('textbox', { name: /additional details/i });
 		await fireEvent.input(input, { target: { value: 'reliable family suv under 30k' } });
 		await fireEvent.submit(input.closest('form')!);
 
@@ -93,7 +93,7 @@ describe('search page', () => {
 
 		const { container } = render(Page);
 
-		const input = screen.getByRole('textbox', { name: /search/i });
+		const input = screen.getByRole('textbox', { name: /additional details/i });
 		await fireEvent.input(input, { target: { value: 'reliable family suv under 30k' } });
 		await fireEvent.submit(input.closest('form')!);
 
@@ -114,10 +114,9 @@ describe('search page', () => {
 
 		render(Page);
 
-		const input = screen.getByRole('textbox', { name: /search/i });
+		const input = screen.getByRole('textbox', { name: /additional details/i });
 		await fireEvent.input(input, { target: { value: 'suv' } });
 
-		await fireEvent.click(screen.getByRole('button', { name: /filters/i }));
 		const maxPriceInput = screen.getByLabelText(/max price/i);
 		await fireEvent.input(maxPriceInput, { target: { value: '25000' } });
 
@@ -141,10 +140,9 @@ describe('search page', () => {
 
 		render(Page);
 
-		const input = screen.getByRole('textbox', { name: /search/i });
+		const input = screen.getByRole('textbox', { name: /additional details/i });
 		await fireEvent.input(input, { target: { value: 'suv' } });
 
-		await fireEvent.click(screen.getByRole('button', { name: /filters/i }));
 		const yearMinInput = screen.getByLabelText(/min year/i);
 		await fireEvent.input(yearMinInput, { target: { value: '2018' } });
 
@@ -168,10 +166,9 @@ describe('search page', () => {
 
 		render(Page);
 
-		const input = screen.getByRole('textbox', { name: /search/i });
+		const input = screen.getByRole('textbox', { name: /additional details/i });
 		await fireEvent.input(input, { target: { value: 'suv' } });
 
-		await fireEvent.click(screen.getByRole('button', { name: /filters/i }));
 		const mileageMaxInput = screen.getByLabelText(/max mileage/i);
 		await fireEvent.input(mileageMaxInput, { target: { value: '60000' } });
 
@@ -195,10 +192,9 @@ describe('search page', () => {
 
 		render(Page);
 
-		const input = screen.getByRole('textbox', { name: /search/i });
+		const input = screen.getByRole('textbox', { name: /additional details/i });
 		await fireEvent.input(input, { target: { value: 'suv' } });
 
-		await fireEvent.click(screen.getByRole('button', { name: /filters/i }));
 		const makeInput = screen.getByLabelText(/^make/i);
 		await fireEvent.input(makeInput, { target: { value: 'Toyota' } });
 
@@ -213,6 +209,58 @@ describe('search page', () => {
 		expect(body.filters).toEqual({ make: 'Toyota' });
 	});
 
+	it('includes filters.model in the submitted request body when model is set', async () => {
+		const fetchMock = vi.fn().mockResolvedValue({
+			ok: true,
+			json: async () => ({ results: [] })
+		});
+		vi.stubGlobal('fetch', fetchMock);
+
+		render(Page);
+
+		const input = screen.getByRole('textbox', { name: /additional details/i });
+		await fireEvent.input(input, { target: { value: 'suv' } });
+
+		const modelInput = screen.getByLabelText(/^model/i);
+		await fireEvent.input(modelInput, { target: { value: 'RAV4' } });
+
+		await fireEvent.submit(input.closest('form')!);
+
+		await waitFor(() => {
+			expect(fetchMock).toHaveBeenCalled();
+		});
+
+		const [, options] = fetchMock.mock.calls[0];
+		const body = JSON.parse(options.body as string);
+		expect(body.filters).toEqual({ model: 'RAV4' });
+	});
+
+	it('includes filters.transmission in the submitted request body when transmission is set', async () => {
+		const fetchMock = vi.fn().mockResolvedValue({
+			ok: true,
+			json: async () => ({ results: [] })
+		});
+		vi.stubGlobal('fetch', fetchMock);
+
+		render(Page);
+
+		const input = screen.getByRole('textbox', { name: /additional details/i });
+		await fireEvent.input(input, { target: { value: 'suv' } });
+
+		const transmissionInput = screen.getByLabelText(/transmission/i);
+		await fireEvent.change(transmissionInput, { target: { value: 'Automatic' } });
+
+		await fireEvent.submit(input.closest('form')!);
+
+		await waitFor(() => {
+			expect(fetchMock).toHaveBeenCalled();
+		});
+
+		const [, options] = fetchMock.mock.calls[0];
+		const body = JSON.parse(options.body as string);
+		expect(body.filters).toEqual({ transmission: 'Automatic' });
+	});
+
 	it('combines multiple set filters into one filters object', async () => {
 		const fetchMock = vi.fn().mockResolvedValue({
 			ok: true,
@@ -222,10 +270,9 @@ describe('search page', () => {
 
 		render(Page);
 
-		const input = screen.getByRole('textbox', { name: /search/i });
+		const input = screen.getByRole('textbox', { name: /additional details/i });
 		await fireEvent.input(input, { target: { value: 'suv' } });
 
-		await fireEvent.click(screen.getByRole('button', { name: /filters/i }));
 		await fireEvent.input(screen.getByLabelText(/max price/i), { target: { value: '25000' } });
 		await fireEvent.input(screen.getByLabelText(/min year/i), { target: { value: '2018' } });
 		await fireEvent.input(screen.getByLabelText(/max mileage/i), { target: { value: '60000' } });
@@ -256,7 +303,7 @@ describe('search page', () => {
 
 		render(Page);
 
-		const input = screen.getByRole('textbox', { name: /search/i });
+		const input = screen.getByRole('textbox', { name: /additional details/i });
 		await fireEvent.input(input, { target: { value: 'suv' } });
 
 		await fireEvent.submit(input.closest('form')!);
@@ -280,10 +327,9 @@ describe('search page', () => {
 
 		render(Page);
 
-		const input = screen.getByRole('textbox', { name: /search/i });
+		const input = screen.getByRole('textbox', { name: /additional details/i });
 		await fireEvent.input(input, { target: { value: 'suv' } });
 
-		await fireEvent.click(screen.getByRole('button', { name: /filters/i }));
 		const maxPriceInput = screen.getByLabelText(/max price/i);
 		await fireEvent.input(maxPriceInput, { target: { value: '25000' } });
 		await fireEvent.input(maxPriceInput, { target: { value: '' } });
@@ -308,7 +354,7 @@ describe('search page', () => {
 
 		render(Page);
 
-		const input = screen.getByRole('textbox', { name: /search/i });
+		const input = screen.getByRole('textbox', { name: /additional details/i });
 		await fireEvent.input(input, { target: { value: 'suv' } });
 
 		const sortSelect = screen.getByLabelText(/sort/i);
@@ -336,7 +382,7 @@ describe('search page', () => {
 
 		render(Page);
 
-		const input = screen.getByRole('textbox', { name: /search/i });
+		const input = screen.getByRole('textbox', { name: /additional details/i });
 		await fireEvent.input(input, { target: { value: 'suv' } });
 
 		await fireEvent.submit(input.closest('form')!);
@@ -350,33 +396,26 @@ describe('search page', () => {
 		expect(body).not.toHaveProperty('sort');
 	});
 
-	it('keeps filter inputs collapsed in a drawer until the Filters toggle is activated', async () => {
+	it('presents all six classic filter inputs immediately on page load, with no drawer-opening interaction required (R3.1)', () => {
 		render(Page);
 
-		// Search input is primary and always visible.
-		expect(screen.getByRole('textbox', { name: /search/i })).not.toBeNull();
-
-		// Filter inputs must not be queryable before the drawer is opened.
-		expect(screen.queryByLabelText(/max price/i)).toBeNull();
-		expect(screen.queryByLabelText(/min year/i)).toBeNull();
-		expect(screen.queryByLabelText(/max mileage/i)).toBeNull();
-		expect(screen.queryByLabelText(/^make/i)).toBeNull();
-
-		const filtersToggle = screen.getByRole('button', { name: /filters/i });
-		await fireEvent.click(filtersToggle);
-
-		// After opening the drawer, filter inputs become queryable.
+		// No click on the "Filters" toggle (or anything else) happens before
+		// these assertions — per R3.1, the classic filter controls (make,
+		// model, year, mileage, transmission) must be immediately visible/
+		// queryable right after render, not hidden behind a collapsed drawer.
 		expect(screen.getByLabelText(/max price/i)).not.toBeNull();
 		expect(screen.getByLabelText(/min year/i)).not.toBeNull();
 		expect(screen.getByLabelText(/max mileage/i)).not.toBeNull();
 		expect(screen.getByLabelText(/^make/i)).not.toBeNull();
+		expect(screen.getByLabelText(/^model/i)).not.toBeNull();
+		expect(screen.getByLabelText(/transmission/i)).not.toBeNull();
 	});
 
 	it('renders with a defined color, typography, and spacing system instead of unstyled browser defaults', () => {
 		const { container } = render(Page);
 
 		const h1 = container.querySelector('h1') as HTMLElement;
-		const searchInput = screen.getByRole('textbox', { name: /search/i });
+		const searchInput = screen.getByRole('textbox', { name: /additional details/i });
 
 		const h1Style = getComputedStyle(h1);
 		const inputStyle = getComputedStyle(searchInput);
@@ -403,7 +442,7 @@ describe('search page', () => {
 
 		render(Page);
 
-		const input = screen.getByRole('textbox', { name: /search/i });
+		const input = screen.getByRole('textbox', { name: /additional details/i });
 		await fireEvent.input(input, { target: { value: 'suv' } });
 		await fireEvent.submit(input.closest('form')!);
 
@@ -415,7 +454,6 @@ describe('search page', () => {
 	it('shows a dismissible chip for a set filter and clears that filter when the chip is dismissed', async () => {
 		render(Page);
 
-		await fireEvent.click(screen.getByRole('button', { name: /filters/i }));
 		const maxPriceInput = screen.getByLabelText(/max price/i) as HTMLInputElement;
 		await fireEvent.input(maxPriceInput, { target: { value: '25000' } });
 
