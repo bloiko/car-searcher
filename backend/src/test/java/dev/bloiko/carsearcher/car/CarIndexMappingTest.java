@@ -11,15 +11,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 class CarIndexMappingTest {
 
     @Test
-    void mappingDeclaresExactlyTheNonVectorFieldsWithSpecTypes() {
+    void mappingDeclaresExactlyTheSpecFieldsWithSpecTypes() {
         TypeMapping mapping = CarIndexMapping.mapping();
         Map<String, Property> properties = mapping.properties();
 
-        // Matches docs/semantic-car-search/design.md's target "cars" index mapping,
-        // minus description_vector (that field is a later task, not this one).
+        // Matches docs/embedding-indexing/design.md's target "cars" index mapping,
+        // including description_vector (BOH-26).
         assertThat(properties.keySet())
                 .containsExactlyInAnyOrder("id", "make", "model", "year", "price", "mileage", "transmission",
-                        "description", "photoUrls");
+                        "description", "photoUrls", "description_vector");
 
         assertThat(properties.get("id").isKeyword()).isTrue();
         assertThat(properties.get("make").isKeyword()).isTrue();
@@ -30,5 +30,18 @@ class CarIndexMappingTest {
         assertThat(properties.get("transmission").isKeyword()).isTrue();
         assertThat(properties.get("description").isText()).isTrue();
         assertThat(properties.get("photoUrls").isKeyword()).isTrue();
+    }
+
+    @Test
+    void descriptionVectorIsAKnnVectorFieldWithDimension384() {
+        // R1.2: "THE SYSTEM SHALL declare `description_vector` as a `knn_vector`
+        // field with dimension 384 on the `cars` index mapping."
+        TypeMapping mapping = CarIndexMapping.mapping();
+        Map<String, Property> properties = mapping.properties();
+
+        Property descriptionVector = properties.get("description_vector");
+        assertThat(descriptionVector).isNotNull();
+        assertThat(descriptionVector.isKnnVector()).isTrue();
+        assertThat(descriptionVector.knnVector().dimension()).isEqualTo(384);
     }
 }

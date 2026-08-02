@@ -4,11 +4,13 @@ import org.opensearch.client.opensearch._types.mapping.Property;
 import org.opensearch.client.opensearch._types.mapping.TypeMapping;
 
 /**
- * Declares the OpenSearch "cars" index mapping for the non-vector fields.
- * See docs/semantic-car-search/design.md for the full target mapping;
- * description_vector is added in a later task.
+ * Declares the OpenSearch "cars" index mapping, including the description_vector
+ * knn_vector field used for semantic search.
+ * See docs/semantic-car-search/design.md for the full target mapping.
  */
 public final class CarIndexMapping {
+
+    private static final int DESCRIPTION_VECTOR_DIMENSION = 384;
 
     private CarIndexMapping() {
     }
@@ -24,6 +26,7 @@ public final class CarIndexMapping {
                 .properties("transmission", keyword())
                 .properties("description", text())
                 .properties("photoUrls", keyword())
+                .properties("description_vector", knnVector(DESCRIPTION_VECTOR_DIMENSION))
                 .build();
     }
 
@@ -41,5 +44,9 @@ public final class CarIndexMapping {
 
     private static Property text() {
         return Property.of(p -> p.text(t -> t));
+    }
+
+    private static Property knnVector(int dimension) {
+        return Property.of(p -> p.knnVector(k -> k.dimension(dimension)));
     }
 }

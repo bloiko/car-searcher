@@ -9,6 +9,7 @@ import org.opensearch.client.opensearch.OpenSearchClient;
 import org.opensearch.client.opensearch.indices.CreateIndexRequest;
 import org.opensearch.client.opensearch.indices.CreateIndexResponse;
 import org.opensearch.client.opensearch.indices.ExistsRequest;
+import org.opensearch.client.opensearch.indices.IndexSettings;
 import org.opensearch.client.opensearch.indices.OpenSearchIndicesClient;
 import org.opensearch.client.transport.endpoints.BooleanResponse;
 
@@ -55,6 +56,26 @@ class CarIndexBootstrapTest {
         assertThat(createRequest.mappings()).isNotNull();
         assertThat(createRequest.mappings().properties().keySet())
                 .containsExactlyInAnyOrderElementsOf(CarIndexMapping.mapping().properties().keySet());
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void createsCarsIndexWithKnnEnabledAndEmbeddingDefaultPipelineSettings() throws IOException {
+        // R1.1/R1.2 (docs/embedding-indexing/design.md "Data model"): index settings
+        // gain index.knn: true and index.default_pipeline: "cars-embedding-pipeline".
+        when(openSearchClient.indices()).thenReturn(indicesClient);
+        when(indicesClient.exists(any(ExistsRequest.class))).thenReturn(new BooleanResponse(false));
+        when(indicesClient.create(any(CreateIndexRequest.class))).thenReturn(mock(CreateIndexResponse.class));
+        CarIndexBootstrap bootstrap = new CarIndexBootstrap(openSearchClient);
+
+        bootstrap.run();
+
+        ArgumentCaptor<CreateIndexRequest> createCaptor = ArgumentCaptor.forClass(CreateIndexRequest.class);
+        verify(indicesClient).create(createCaptor.capture());
+        IndexSettings settings = createCaptor.getValue().settings();
+        assertThat(settings).isNotNull();
+        assertThat(settings.knn()).isTrue();
+        assertThat(settings.defaultPipeline()).isEqualTo("cars-embedding-pipeline");
     }
 
     @Test

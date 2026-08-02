@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 public class CarIndexBootstrap implements CommandLineRunner {
 
     private static final String CARS_INDEX = "cars";
+    private static final String CARS_EMBEDDING_PIPELINE = "cars-embedding-pipeline";
 
     private final OpenSearchClient openSearchClient;
 
@@ -34,6 +35,7 @@ public class CarIndexBootstrap implements CommandLineRunner {
                 openSearchClient.indices().create(new CreateIndexRequest.Builder()
                         .index(CARS_INDEX)
                         .mappings(CarIndexMapping.mapping())
+                        .settings(s -> s.knn(true).defaultPipeline(CARS_EMBEDDING_PIPELINE))
                         .build());
             }
         } catch (IOException e) {
