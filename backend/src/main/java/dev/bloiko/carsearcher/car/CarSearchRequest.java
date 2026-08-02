@@ -14,12 +14,23 @@ import jakarta.validation.constraints.NotBlank;
  *     of {@code query} (BOH-14/BOH-22). May be {@code null}.
  * @param sort result ordering; {@code "price_asc"} or {@code "mileage_asc"}, or
  *     {@code null} for the default relevance ranking. See docs/search-sort/tasks.md.
+ * @param page 0-indexed page number; {@code null} defaults to {@code 0}. See
+ *     docs/search-pagination/design.md — "Data model".
+ * @param pageSize maximum results per page; {@code null} defaults to {@code 20}.
+ *     When present, must be in {@code 1..100}.
  */
-public record CarSearchRequest(@NotBlank String query, Filters filters, String sort) {
+public record CarSearchRequest(
+        @NotBlank String query, Filters filters, String sort, Integer page, Integer pageSize) {
 
     public CarSearchRequest {
         if (sort != null && !sort.equals("price_asc") && !sort.equals("mileage_asc")) {
             throw new IllegalArgumentException("sort must be \"price_asc\" or \"mileage_asc\"");
+        }
+        if (page != null && page < 0) {
+            throw new IllegalArgumentException("page must not be negative");
+        }
+        if (pageSize != null && (pageSize < 1 || pageSize > 100)) {
+            throw new IllegalArgumentException("pageSize must be between 1 and 100");
         }
     }
 

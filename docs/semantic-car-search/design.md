@@ -55,6 +55,6 @@ The initial scaffold ships a **placeholder**: a plain OpenSearch `multi_match` k
 ```json
 { "query": "reliable family suv under 30k", "filters": { "priceMax": 30000 } }
 ```
-→ `{ "results": [ { "id", "make", "model", "year", "price", "mileage", "description" }, ... ] }`
+→ `{ "results": [ { "id", "make", "model", "year", "price", "mileage", "description" }, ... ], "total": 137 }`
 
 `POST /api/cars` — index a car listing (used to seed data for local dev; no auth yet, local-only).
