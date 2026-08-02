@@ -22,11 +22,10 @@ public record CarSearchResponse(List<CarSearchResult> results) {
 
     /**
      * A single search result. Per design.md's "API" section and requirements.md
-     * R3.1, this is deliberately narrower than {@link Car}: it omits
-     * {@code mileage}, which isn't part of the documented response contract.
+     * R3.1, this is deliberately narrower than {@link Car}.
      */
     public record CarSearchResult(
-            String id, String make, String model, int year, float price, String description,
+            String id, String make, String model, int year, float price, int mileage, String description,
             List<String> photoUrls) {
 
         public CarSearchResult {
@@ -35,7 +34,7 @@ public record CarSearchResponse(List<CarSearchResult> results) {
 
         static CarSearchResult from(Car car) {
             return new CarSearchResult(
-                    car.id(), car.make(), car.model(), car.year(), car.price(), car.description(),
+                    car.id(), car.make(), car.model(), car.year(), car.price(), car.mileage(), car.description(),
                     car.photoUrls());
         }
     }
