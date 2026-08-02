@@ -10,5 +10,5 @@ This is the second and final tracker for BOH-17 — the first (`docs/search-sort
 
 | # | Task | Status | Reqs | PR |
 |---|---|---|---|---|
-| 1 | `CarSearchRequest` gains validated `page`/`pageSize`; `CarSearchService.search(...)` returns a new `SearchResult(cars, total)` with `from`/`size` applied; `CarSearchController`/`CarSearchResponse` carry `total` through | in_progress | R1.1, R1.2, R1.3, R1.4, R2.1 |  |
-| 2 | Frontend: page `$state`, Previous/Next controls disabled at boundaries, page resets to 0 on a new query/filter/sort change | in_progress | R3.1, R3.2 |  |
+| 1 | `CarSearchRequest` gains validated `page`/`pageSize`; `CarSearchService.search(...)` returns a new `SearchResult(cars, total)` with `from`/`size` applied; `CarSearchController`/`CarSearchResponse` carry `total` through | in_review | R1.1, R1.2, R1.3, R1.4, R2.1 | [#17](https://github.com/bloiko/car-searcher/pull/17) |
+| 2 | Frontend: page `$state`, Previous/Next controls disabled at boundaries, page resets to 0 on a new query/filter/sort change | in_review | R3.1, R3.2 | [#17](https://github.com/bloiko/car-searcher/pull/17) |
