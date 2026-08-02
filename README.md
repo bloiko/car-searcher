@@ -20,6 +20,16 @@ Backend: http://localhost:8080 · Frontend: http://localhost:5173
 
 See [CLAUDE.md](CLAUDE.md) for repo conventions, and `docs/` for feature specs.
 
+### One-time: semantic search embedding model
+
+Real (non-placeholder) semantic search needs an embedding model registered and deployed in OpenSearch — a one-time step per cluster, not part of every backend restart (see `docs/semantic-car-search/design.md`, "Embedding model & vector architecture"):
+
+```bash
+./backend/scripts/register-embedding-model.sh
+```
+
+Set the printed model ID as `car-searcher.embedding.model-id` in `backend/src/main/resources/application.yml` before starting the backend — it fails startup with a clear error if this is unset.
+
 ## This repo has an AI dev workflow — how to use it
 
 Tasks live in [Linear](https://linear.app/bohdanloiko) (one issue per feature) and in `docs/<feature>/tasks.md` (the actual tracker, with a `Status` column per task). Driving a task through implementation is either:
