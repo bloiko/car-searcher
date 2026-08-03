@@ -10,4 +10,4 @@ Linear: [BOH-29](https://linear.app/bohdanloiko/issue/BOH-29)
 |---|---|---|---|---|
 | 1 | Replace design tokens (palette, hero type scale, monospace numeric token) and restructure the search page's header into a hero section, preserving every existing form control's id/label/behavior | in_progress | R1.1, R1.2, R1.3, R2.1, R2.2 |  |
 | 2 | Result cards: hover lift/shadow motion (reduced-motion aware), apply monospace treatment to price/mileage | in_progress | R3.1, R3.2 |  |
-| 3 | Apply the same tokens and numeric treatment to the `/cars/[id]` detail page | todo | R4.1 | |
+| 3 | Apply the same tokens and numeric treatment to the `/cars/[id]` detail page | in_progress | R4.1 |  |
