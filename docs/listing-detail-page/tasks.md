@@ -8,6 +8,6 @@ Linear: [BOH-15](https://linear.app/bohdanloiko/issue/BOH-15)
 
 | # | Task | Status | Reqs | PR |
 |---|---|---|---|---|
-| 1 | Add optional `sourceUrl` to `Car` (via a convenience delegating constructor, zero fixture blast radius) and `CarIndexMapping` (keyword) | in_progress | (foundation for R3.1/R3.2) |  |
-| 2 | `GET /api/cars/{id}` — new lookup service + controller endpoint, 200 with full `Car` or 404 | in_progress | R1.1, R1.2 |  |
-| 3 | Frontend: `/cars/[id]` detail route (all photos, all fields, conditional outbound `sourceUrl` link), search-result cards link to it | in_progress | R1.3, R2.1, R3.1, R3.2 |  |
+| 1 | Add optional `sourceUrl` to `Car` (via a convenience delegating constructor, zero fixture blast radius) and `CarIndexMapping` (keyword) | in_review | (foundation for R3.1/R3.2) | [#18](https://github.com/bloiko/car-searcher/pull/18) |
+| 2 | `GET /api/cars/{id}` — new lookup service + controller endpoint, 200 with full `Car` or 404 | in_review | R1.1, R1.2 | [#18](https://github.com/bloiko/car-searcher/pull/18) |
+| 3 | Frontend: `/cars/[id]` detail route (all photos, all fields, conditional outbound `sourceUrl` link), search-result cards link to it | in_review | R1.3, R2.1, R3.1, R3.2 | [#18](https://github.com/bloiko/car-searcher/pull/18) |
