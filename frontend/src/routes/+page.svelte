@@ -221,17 +221,19 @@
 	{:else}
 		<div class="results">
 			{#each results as result (result.id)}
-				<div class="result-card">
-					{#if result.photoUrls.length > 0}
-						<img src={result.photoUrls[0]} alt="{result.make} {result.model}" class="thumbnail" />
-					{:else}
-						<img src="/placeholder-car.svg" alt="{result.make} {result.model} placeholder" class="thumbnail" />
-					{/if}
-					<p class="price">${result.price}</p>
-					<h2>{result.make} {result.model} ({result.year})</h2>
-					<p class="mileage">{result.mileage}</p>
-					<p class="description">{result.description}</p>
-				</div>
+				<a href="/cars/{result.id}" class="result-card-link">
+					<div class="result-card">
+						{#if result.photoUrls.length > 0}
+							<img src={result.photoUrls[0]} alt="{result.make} {result.model}" class="thumbnail" />
+						{:else}
+							<img src="/placeholder-car.svg" alt="{result.make} {result.model} placeholder" class="thumbnail" />
+						{/if}
+						<p class="price">${result.price}</p>
+						<h2>{result.make} {result.model} ({result.year})</h2>
+						<p class="mileage">{result.mileage}</p>
+						<p class="description">{result.description}</p>
+					</div>
+				</a>
 			{/each}
 		</div>
 	{/if}
@@ -509,6 +511,15 @@
 		grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
 		gap: var(--space-4);
 		margin: 0 var(--space-4) var(--space-6);
+	}
+
+	/* Wraps each .result-card in a navigable link (R1.3) without changing its
+	   look -- resets the browser's default link styling so it reads as a card,
+	   not as underlined blue text. */
+	.result-card-link {
+		display: block;
+		color: inherit;
+		text-decoration: none;
 	}
 
 	.result-card {
