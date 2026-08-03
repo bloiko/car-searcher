@@ -625,6 +625,44 @@ describe('search page', () => {
 		expect(body.page).toBe(0);
 	});
 
+	it('applies the new premium palette background color token to :root (R1.1, BOH-29)', () => {
+		render(Page);
+
+		// jsdom's CSSStyleDeclaration doesn't resolve `var(--color-bg)` references
+		// down to a computed rgb() (confirmed empirically: `getComputedStyle(document.body).backgroundColor`
+		// stays the literal string 'var(--color-bg)' even once the property itself
+		// resolves) -- which is exactly why the existing "renders with a defined
+		// color..." test above only asserts body background isn't transparent
+		// rather than pinning a specific value. So this test instead reads the
+		// custom property itself directly off `:root`, which jsdom does resolve
+		// to its authored literal.
+		//
+		// jsdom also doesn't match `@media (prefers-color-scheme: dark)` (nothing
+		// in this suite stubs a preference), so the light-mode `:root` block is
+		// what's in effect here -- confirmed by probing the *current* unmodified
+		// component, where this same property/element combo currently resolves
+		// to the OLD light value '#f8f7f5', not the dark value.
+		//
+		// New palette per docs/premium-redesign/design.md: --color-bg: #FAF8F4
+		// (light mode), replacing the old --color-bg: #f8f7f5.
+		const colorBg = getComputedStyle(document.documentElement).getPropertyValue('--color-bg').trim();
+		expect(colorBg).toBe('#FAF8F4');
+	});
+
+	it('defines a --font-mono custom property resolving to a real monospace stack (R1.3, BOH-29)', () => {
+		render(Page);
+
+		const rootStyle = getComputedStyle(document.documentElement);
+		const fontMono = rootStyle.getPropertyValue('--font-mono').trim();
+
+		// Task 2 (not this task) wires `.tabular` onto the actual price/mileage
+		// elements, so this only checks the token itself exists on :root and
+		// names a monospace stack, per design.md: `ui-monospace, "SF Mono",
+		// "Cascadia Code", "Roboto Mono", monospace`.
+		expect(fontMono).not.toBe('');
+		expect(fontMono.toLowerCase()).toContain('monospace');
+	});
+
 	it('collapses the result card grid to a single column under a 720px media query', () => {
 		render(Page);
 
