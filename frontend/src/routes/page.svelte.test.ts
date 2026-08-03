@@ -105,6 +105,43 @@ describe('search page', () => {
 		expect(img.src).toBe('https://example.com/rav4-front.jpg');
 	});
 
+	it('wraps each result card in a link to its detail page (R1.3)', async () => {
+		const mockResult = {
+			id: '42',
+			make: 'Toyota',
+			model: 'RAV4',
+			year: 2020,
+			price: 25000,
+			description: 'A reliable family SUV under 30k',
+			photoUrls: []
+		};
+		vi.stubGlobal(
+			'fetch',
+			vi.fn().mockResolvedValue({
+				ok: true,
+				json: async () => ({ results: [mockResult] })
+			})
+		);
+
+		const { container } = render(Page);
+
+		const input = screen.getByRole('textbox', { name: /additional details/i });
+		await fireEvent.input(input, { target: { value: 'reliable family suv under 30k' } });
+		await fireEvent.submit(input.closest('form')!);
+
+		await waitFor(() => {
+			expect(container.textContent).toContain('Toyota');
+		});
+
+		// Navigating to the detail page is what R1.3 requires -- the whole card
+		// (not just the make/model heading) is expected to be the click target,
+		// matching design.md's "each result card ... becomes a link ... wrapping
+		// the existing card markup".
+		const link = container.querySelector('a[href="/cars/42"]');
+		expect(link).not.toBeNull();
+		expect(link?.textContent).toContain('RAV4');
+	});
+
 	it('includes filters.priceMax in the submitted request body when max price is set', async () => {
 		const fetchMock = vi.fn().mockResolvedValue({
 			ok: true,

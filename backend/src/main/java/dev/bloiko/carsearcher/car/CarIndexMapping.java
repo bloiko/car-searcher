@@ -26,6 +26,7 @@ public final class CarIndexMapping {
                 .properties("transmission", keyword())
                 .properties("description", text())
                 .properties("photoUrls", keyword())
+                .properties("sourceUrl", keyword())
                 .properties("description_vector", knnVector(DESCRIPTION_VECTOR_DIMENSION))
                 .build();
     }
