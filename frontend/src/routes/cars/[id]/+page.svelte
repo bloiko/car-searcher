@@ -82,9 +82,9 @@
 
 		<div class="detail-info">
 			<!-- Same visual weight as the search-result card's price (R2.1). -->
-			<p class="price">${car.price}</p>
+			<p class="price tabular">${car.price}</p>
 			<h1>{car.make} {car.model} ({car.year})</h1>
-			<p class="mileage">{car.mileage}</p>
+			<p class="mileage tabular">{car.mileage}</p>
 			<p class="transmission">{car.transmission}</p>
 			<p class="description">{car.description}</p>
 
@@ -112,24 +112,42 @@
 	   plus vitest CSS-processing config this task's scope doesn't call for.
 	   Values are copied verbatim -- nothing here is reinvented. */
 	:global(:root) {
-		--color-bg: #f8f7f5;
-		--color-surface: #ffffff;
-		--color-text: #1c1917;
-		--color-text-muted: #57534e;
-		--color-border: #d6d3d1;
-		--color-primary: #b45309;
-		--color-primary-text: #ffffff;
+		/* Premium palette (BOH-29, R1.1) -- light mode. Hex casing here matches
+		   design.md verbatim -- jsdom's getComputedStyle echoes custom
+		   property values as authored rather than normalizing case, and a
+		   test asserts the literal uppercase string, so this isn't cosmetic. */
+		--color-bg: #FAF8F4;
+		--color-surface: #FFFFFF;
+		--color-surface-sunken: #F2EFE7;
+		--color-text: #14110B;
+		--color-text-muted: #6B665C;
+		--color-border: #E6E1D6;
+		--color-accent: #9C6F1F;
+		--color-accent-strong: #7C5714;
+		--color-accent-soft: #F3E6CC;
+		--color-accent-ink: #FFFFFF;
+
+		/* Old token names kept as aliases so nothing that already references
+		   them (buttons, danger states) breaks -- this restyle replaces the
+		   palette's values, not every call site's token name. */
+		--color-primary: var(--color-accent);
+		--color-primary-text: var(--color-accent-ink);
 		--color-danger: #b91c1c;
 		--color-danger-bg: #fef2f2;
 		--color-danger-border: #fecaca;
 
 		--font-body: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 		--font-heading: Georgia, 'Times New Roman', serif;
+		--font-mono: ui-monospace, 'SF Mono', 'Cascadia Code', 'Roboto Mono', monospace;
+
+		/* Deepened shadow for the result-card hover lift (R3.1, BOH-29). */
+		--shadow-card-hover: 0 20px 32px -12px rgba(20, 17, 11, 0.28);
 
 		--text-sm: 0.875rem;
 		--text-base: 1rem;
 		--text-lg: 1.25rem;
 		--text-2xl: 2.25rem;
+		--text-hero: clamp(2.6rem, 6vw, 4.6rem);
 
 		--space-1: 0.25rem;
 		--space-2: 0.5rem;
@@ -142,13 +160,19 @@
 
 	@media (prefers-color-scheme: dark) {
 		:global(:root) {
-			--color-bg: #1c1917;
-			--color-surface: #292524;
-			--color-text: #f5f5f4;
-			--color-text-muted: #a8a29e;
-			--color-border: #44403c;
-			--color-primary: #f59e0b;
-			--color-primary-text: #1c1917;
+			--color-bg: #0A0A0B;
+			--color-surface: #16161A;
+			--color-surface-sunken: #1E1E23;
+			--color-text: #F5F3EE;
+			--color-text-muted: #9C978C;
+			--color-border: #2A2A2E;
+			--color-accent: #D4A857;
+			--color-accent-strong: #E8BE6E;
+			--color-accent-soft: #2A2213;
+			--color-accent-ink: #1A1305;
+
+			--color-primary: var(--color-accent);
+			--color-primary-text: var(--color-accent-ink);
 			--color-danger: #f87171;
 			--color-danger-bg: #451a1a;
 			--color-danger-border: #7f1d1d;
@@ -276,6 +300,12 @@
 		font-size: var(--text-sm);
 		color: var(--color-text-muted);
 		margin: 0;
+	}
+
+	/* R3.2: monospace + tabular-figure treatment for numeric fields. */
+	.tabular {
+		font-family: var(--font-mono);
+		font-variant-numeric: tabular-nums;
 	}
 
 	.detail-info .description {

@@ -126,86 +126,93 @@
 	}
 </script>
 
-<h1>Car Search</h1>
+<section class="hero">
+	<p class="hero-eyebrow">Semantic search, built for real inventory</p>
+	<h1>Find the exact car<br /><em>you actually meant.</em></h1>
+	<p class="hero-sub">
+		Describe it in plain language — trim, features, vibe. Everything else is a filter, not a
+		guess.
+	</p>
 
-<form onsubmit={handleSubmit}>
-	<label for="search-input" class="search-label">Additional details</label>
-	<div class="search-row">
-		<input
-			id="search-input"
-			class="search-input"
-			type="text"
-			placeholder="e.g. Sportline, Laurin & Klement, leather seats"
-			bind:value={query}
-		/>
-		<button type="submit" class="search-submit">Search</button>
-	</div>
-
-	<label for="sort-select" class="sort-label">Sort</label>
-	<select id="sort-select" class="sort-select" bind:value={sort}>
-		<option value="">Best match</option>
-		<option value="price_asc">Price: low to high</option>
-		<option value="mileage_asc">Mileage: low to high</option>
-	</select>
-
-	{#if filterChips.length > 0}
-		<div class="filter-chips">
-			{#each filterChips as chip (chip.key)}
-				<span class="filter-chip">
-					<span class="filter-chip-text">{chip.label}: {chip.value}</span>
-					<button
-						type="button"
-						class="filter-chip-remove"
-						aria-label={`Remove ${chip.label} filter`}
-						onclick={chip.clear}
-					>
-						×
-					</button>
-				</span>
-			{/each}
+	<form onsubmit={handleSubmit}>
+		<label for="search-input" class="search-label">Additional details</label>
+		<div class="search-row">
+			<input
+				id="search-input"
+				class="search-input"
+				type="text"
+				placeholder="e.g. Sportline, Laurin & Klement, leather seats"
+				bind:value={query}
+			/>
+			<button type="submit" class="search-submit">Search</button>
 		</div>
-	{/if}
 
-	<div class="filters-section">
-		<label for="price-max-input">Max price</label>
-		<input
-			id="price-max-input"
-			type="number"
-			value={priceMax}
-			oninput={(e) => (priceMax = e.currentTarget.value)}
-		/>
-
-		<label for="year-min-input">Min year</label>
-		<input
-			id="year-min-input"
-			type="number"
-			value={yearMin}
-			oninput={(e) => (yearMin = e.currentTarget.value)}
-		/>
-
-		<label for="mileage-max-input">Max mileage</label>
-		<input
-			id="mileage-max-input"
-			type="number"
-			value={mileageMax}
-			oninput={(e) => (mileageMax = e.currentTarget.value)}
-		/>
-
-		<label for="make-input">Make</label>
-		<input id="make-input" type="text" bind:value={make} />
-
-		<label for="model-input">Model</label>
-		<input id="model-input" type="text" bind:value={model} />
-
-		<label for="transmission-input">Transmission</label>
-		<select id="transmission-input" bind:value={transmission}>
-			<option value="">Any</option>
-			<option value="Automatic">Automatic</option>
-			<option value="Manual">Manual</option>
-			<option value="CVT">CVT</option>
+		<label for="sort-select" class="sort-label">Sort</label>
+		<select id="sort-select" class="sort-select" bind:value={sort}>
+			<option value="">Best match</option>
+			<option value="price_asc">Price: low to high</option>
+			<option value="mileage_asc">Mileage: low to high</option>
 		</select>
-	</div>
-</form>
+
+		{#if filterChips.length > 0}
+			<div class="filter-chips">
+				{#each filterChips as chip (chip.key)}
+					<span class="filter-chip">
+						<span class="filter-chip-text">{chip.label}: {chip.value}</span>
+						<button
+							type="button"
+							class="filter-chip-remove"
+							aria-label={`Remove ${chip.label} filter`}
+							onclick={chip.clear}
+						>
+							×
+						</button>
+					</span>
+				{/each}
+			</div>
+		{/if}
+
+		<div class="filters-section">
+			<label for="price-max-input">Max price</label>
+			<input
+				id="price-max-input"
+				type="number"
+				value={priceMax}
+				oninput={(e) => (priceMax = e.currentTarget.value)}
+			/>
+
+			<label for="year-min-input">Min year</label>
+			<input
+				id="year-min-input"
+				type="number"
+				value={yearMin}
+				oninput={(e) => (yearMin = e.currentTarget.value)}
+			/>
+
+			<label for="mileage-max-input">Max mileage</label>
+			<input
+				id="mileage-max-input"
+				type="number"
+				value={mileageMax}
+				oninput={(e) => (mileageMax = e.currentTarget.value)}
+			/>
+
+			<label for="make-input">Make</label>
+			<input id="make-input" type="text" bind:value={make} />
+
+			<label for="model-input">Model</label>
+			<input id="model-input" type="text" bind:value={model} />
+
+			<label for="transmission-input">Transmission</label>
+			<select id="transmission-input" bind:value={transmission}>
+				<option value="">Any</option>
+				<option value="Automatic">Automatic</option>
+				<option value="Manual">Manual</option>
+				<option value="CVT">CVT</option>
+			</select>
+		</div>
+	</form>
+</section>
 
 {#if loading}
 	<p role="status" class="status-message">Searching…</p>
@@ -215,60 +222,80 @@
 	<p role="alert" class="error-banner">{error}</p>
 {/if}
 
-{#if results !== null && !loading}
-	{#if results.length === 0}
-		<p class="empty-state">No results found.</p>
-	{:else}
-		<div class="results">
-			{#each results as result (result.id)}
-				<a href="/cars/{result.id}" class="result-card-link">
-					<div class="result-card">
-						{#if result.photoUrls.length > 0}
-							<img src={result.photoUrls[0]} alt="{result.make} {result.model}" class="thumbnail" />
-						{:else}
-							<img src="/placeholder-car.svg" alt="{result.make} {result.model} placeholder" class="thumbnail" />
-						{/if}
-						<p class="price">${result.price}</p>
-						<h2>{result.make} {result.model} ({result.year})</h2>
-						<p class="mileage">{result.mileage}</p>
-						<p class="description">{result.description}</p>
-					</div>
-				</a>
-			{/each}
+<section class="results-section">
+	{#if results !== null && !loading}
+		{#if results.length === 0}
+			<p class="empty-state">No results found.</p>
+		{:else}
+			<div class="results">
+				{#each results as result (result.id)}
+					<a href="/cars/{result.id}" class="result-card-link">
+						<div class="result-card">
+							{#if result.photoUrls.length > 0}
+								<img src={result.photoUrls[0]} alt="{result.make} {result.model}" class="thumbnail" />
+							{:else}
+								<img src="/placeholder-car.svg" alt="{result.make} {result.model} placeholder" class="thumbnail" />
+							{/if}
+							<p class="price tabular">${result.price}</p>
+							<h2>{result.make} {result.model} ({result.year})</h2>
+							<p class="mileage tabular">{result.mileage}</p>
+							<p class="description">{result.description}</p>
+						</div>
+					</a>
+				{/each}
+			</div>
+		{/if}
+	{/if}
+
+	{#if results !== null && total > PAGE_SIZE}
+		<div class="pagination">
+			<button type="button" onclick={goToPreviousPage} disabled={page === 0}>Previous</button>
+			<span class="pagination-info">Page {page + 1} of {Math.ceil(total / PAGE_SIZE)}</span>
+			<button type="button" onclick={goToNextPage} disabled={(page + 1) * PAGE_SIZE >= total}
+				>Next</button
+			>
 		</div>
 	{/if}
-{/if}
-
-{#if results !== null && total > PAGE_SIZE}
-	<div class="pagination">
-		<button type="button" onclick={goToPreviousPage} disabled={page === 0}>Previous</button>
-		<span class="pagination-info">Page {page + 1} of {Math.ceil(total / PAGE_SIZE)}</span>
-		<button type="button" onclick={goToNextPage} disabled={(page + 1) * PAGE_SIZE >= total}
-			>Next</button
-		>
-	</div>
-{/if}
+</section>
 
 <style>
 	:global(:root) {
-		--color-bg: #f8f7f5;
-		--color-surface: #ffffff;
-		--color-text: #1c1917;
-		--color-text-muted: #57534e;
-		--color-border: #d6d3d1;
-		--color-primary: #b45309;
-		--color-primary-text: #ffffff;
+		/* Premium palette (BOH-29, R1.1) -- light mode. Hex casing here matches
+		   design.md verbatim -- jsdom's getComputedStyle echoes custom
+		   property values as authored rather than normalizing case, and a
+		   test asserts the literal uppercase string, so this isn't cosmetic. */
+		--color-bg: #FAF8F4;
+		--color-surface: #FFFFFF;
+		--color-surface-sunken: #F2EFE7;
+		--color-text: #14110B;
+		--color-text-muted: #6B665C;
+		--color-border: #E6E1D6;
+		--color-accent: #9C6F1F;
+		--color-accent-strong: #7C5714;
+		--color-accent-soft: #F3E6CC;
+		--color-accent-ink: #FFFFFF;
+
+		/* Old token names kept as aliases so nothing that already references
+		   them (buttons, danger states) breaks -- this restyle replaces the
+		   palette's values, not every call site's token name. */
+		--color-primary: var(--color-accent);
+		--color-primary-text: var(--color-accent-ink);
 		--color-danger: #b91c1c;
 		--color-danger-bg: #fef2f2;
 		--color-danger-border: #fecaca;
 
 		--font-body: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 		--font-heading: Georgia, 'Times New Roman', serif;
+		--font-mono: ui-monospace, 'SF Mono', 'Cascadia Code', 'Roboto Mono', monospace;
+
+		/* Deepened shadow for the result-card hover lift (R3.1, BOH-29). */
+		--shadow-card-hover: 0 20px 32px -12px rgba(20, 17, 11, 0.28);
 
 		--text-sm: 0.875rem;
 		--text-base: 1rem;
 		--text-lg: 1.25rem;
 		--text-2xl: 2.25rem;
+		--text-hero: clamp(2.6rem, 6vw, 4.6rem);
 
 		--space-1: 0.25rem;
 		--space-2: 0.5rem;
@@ -281,13 +308,19 @@
 
 	@media (prefers-color-scheme: dark) {
 		:global(:root) {
-			--color-bg: #1c1917;
-			--color-surface: #292524;
-			--color-text: #f5f5f4;
-			--color-text-muted: #a8a29e;
-			--color-border: #44403c;
-			--color-primary: #f59e0b;
-			--color-primary-text: #1c1917;
+			--color-bg: #0A0A0B;
+			--color-surface: #16161A;
+			--color-surface-sunken: #1E1E23;
+			--color-text: #F5F3EE;
+			--color-text-muted: #9C978C;
+			--color-border: #2A2A2E;
+			--color-accent: #D4A857;
+			--color-accent-strong: #E8BE6E;
+			--color-accent-soft: #2A2213;
+			--color-accent-ink: #1A1305;
+
+			--color-primary: var(--color-accent);
+			--color-primary-text: var(--color-accent-ink);
 			--color-danger: #f87171;
 			--color-danger-bg: #451a1a;
 			--color-danger-border: #7f1d1d;
@@ -303,11 +336,57 @@
 		line-height: 1.5;
 	}
 
+	/* Hero section (BOH-29, R2.1): eyebrow + two-line headline + subhead,
+	   with the existing search/filter/sort form relocated inside it as the
+	   centerpiece. The form's own markup/ids/behavior are untouched -- only
+	   this section wraps it and restyles its container. */
+	.hero {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: var(--space-2);
+		text-align: center;
+		padding: var(--space-6) var(--space-4);
+		background-color: var(--color-surface-sunken);
+	}
+
+	.hero-eyebrow {
+		font-family: var(--font-body);
+		font-size: var(--text-sm);
+		font-weight: 600;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		color: var(--color-accent-strong);
+		margin: 0;
+	}
+
 	h1 {
-		font-family: var(--font-heading);
-		font-size: var(--text-2xl);
+		font-family: var(--font-body);
+		font-size: var(--text-hero);
+		font-weight: 800;
+		letter-spacing: -0.035em;
+		line-height: 1.05;
 		color: var(--color-text);
-		margin: var(--space-6) var(--space-4);
+		margin: var(--space-4) 0 0;
+	}
+
+	h1 em {
+		color: var(--color-accent);
+		font-style: normal;
+	}
+
+	.hero-sub {
+		font-family: var(--font-body);
+		font-size: var(--text-lg);
+		color: var(--color-text-muted);
+		max-width: 36rem;
+		margin: var(--space-2) 0 var(--space-4);
+	}
+
+	.results-section {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-4);
 	}
 
 	form {
@@ -315,11 +394,13 @@
 		flex-direction: column;
 		gap: var(--space-4);
 		max-width: 40rem;
-		margin: 0 var(--space-4) var(--space-6);
+		width: 100%;
+		margin: 0 auto var(--space-6);
 		padding: var(--space-4);
 		background-color: var(--color-surface);
 		border: 1px solid var(--color-border);
 		border-radius: var(--radius);
+		text-align: left;
 	}
 
 	label {
@@ -530,6 +611,24 @@
 		border: 1px solid var(--color-border);
 		border-radius: var(--radius);
 		padding: var(--space-4);
+		transition:
+			transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1),
+			box-shadow 0.22s ease;
+	}
+
+	/* R3.1: hover lift + shadow deepen, gated so a reduced-motion user gets
+	   no transform/transition at all (only `no-preference` users see it). */
+	@media (prefers-reduced-motion: no-preference) {
+		:global(.result-card):hover {
+			transform: translateY(-6px);
+			box-shadow: var(--shadow-card-hover);
+		}
+	}
+
+	/* R3.2: monospace + tabular-figure treatment for numeric fields. */
+	.tabular {
+		font-family: var(--font-mono);
+		font-variant-numeric: tabular-nums;
 	}
 
 	.result-card .thumbnail {
