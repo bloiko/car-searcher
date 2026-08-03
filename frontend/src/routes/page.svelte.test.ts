@@ -707,4 +707,95 @@ describe('search page', () => {
 		expect(mediaRule).toBeDefined();
 		expect(singleColumnResultsRule).toBeDefined();
 	});
+
+	it('applies the .tabular monospace treatment to a result card\'s price and mileage elements (R3.2, BOH-29)', async () => {
+		const mockResult = {
+			id: '1',
+			make: 'Toyota',
+			model: 'RAV4',
+			year: 2020,
+			price: 25000,
+			mileage: 42000,
+			description: 'A reliable family SUV under 30k',
+			photoUrls: []
+		};
+		vi.stubGlobal(
+			'fetch',
+			vi.fn().mockResolvedValue({
+				ok: true,
+				json: async () => ({ results: [mockResult] })
+			})
+		);
+
+		const { container } = render(Page);
+
+		const input = screen.getByRole('textbox', { name: /additional details/i });
+		await fireEvent.input(input, { target: { value: 'reliable family suv under 30k' } });
+		await fireEvent.submit(input.closest('form')!);
+
+		await waitFor(() => {
+			expect(container.textContent).toContain('Toyota');
+		});
+
+		// Real DOM-structure assertions, not a CSS-only check: the .price and
+		// .mileage elements inside a rendered .result-card must actually carry
+		// the .tabular utility class from design.md ("a real assertion that
+		// the numeric treatment is actually applied, not just present in CSS
+		// unused" per docs/premium-redesign/design.md's testing strategy).
+		const priceEl = container.querySelector('.result-card .price');
+		const mileageEl = container.querySelector('.result-card .mileage');
+		expect(priceEl).not.toBeNull();
+		expect(mileageEl).not.toBeNull();
+		expect(priceEl!.classList.contains('tabular')).toBe(true);
+		expect(mileageEl!.classList.contains('tabular')).toBe(true);
+	});
+
+	it('defines a reduced-motion-gated .result-card:hover rule that lifts the card via translateY (R3.1, BOH-29)', () => {
+		render(Page);
+
+		// Same CSSOM-inspection technique as the 720px breakpoint test above:
+		// the dev-mode Vite config injects the component's <style> block as a
+		// real <style> tag (a real CSSStyleSheet) under `mode === 'test'`, so
+		// the actual parsed rule can be inspected directly instead of relying
+		// on getComputedStyle (which can't evaluate a `:hover` pseudo-class or
+		// resolve `@media (prefers-reduced-motion: ...)` in jsdom, since jsdom
+		// has no real layout/animation engine to trigger either).
+		let reducedMotionMediaRule: CSSMediaRule | undefined;
+		let hoverRule: CSSStyleRule | undefined;
+
+		for (const sheet of Array.from(document.styleSheets)) {
+			let rules: CSSRuleList;
+			try {
+				rules = sheet.cssRules;
+			} catch {
+				continue;
+			}
+
+			for (const rule of Array.from(rules)) {
+				if (
+					rule instanceof CSSMediaRule &&
+					/prefers-reduced-motion:\s*no-preference/i.test(
+						rule.conditionText || rule.media.mediaText
+					)
+				) {
+					reducedMotionMediaRule = rule;
+					for (const innerRule of Array.from(rule.cssRules)) {
+						if (
+							innerRule instanceof CSSStyleRule &&
+							innerRule.selectorText.includes('.result-card:hover')
+						) {
+							hoverRule = innerRule;
+						}
+					}
+				}
+			}
+		}
+
+		// R3.1: the hover lift (translateY) + shadow deepen must be scoped
+		// inside `@media (prefers-reduced-motion: no-preference)`, so a
+		// reduced-motion user gets no transform/transition at all.
+		expect(reducedMotionMediaRule).toBeDefined();
+		expect(hoverRule).toBeDefined();
+		expect(hoverRule!.style.transform).toContain('translateY');
+	});
 });

@@ -236,9 +236,9 @@
 							{:else}
 								<img src="/placeholder-car.svg" alt="{result.make} {result.model} placeholder" class="thumbnail" />
 							{/if}
-							<p class="price">${result.price}</p>
+							<p class="price tabular">${result.price}</p>
 							<h2>{result.make} {result.model} ({result.year})</h2>
-							<p class="mileage">{result.mileage}</p>
+							<p class="mileage tabular">{result.mileage}</p>
 							<p class="description">{result.description}</p>
 						</div>
 					</a>
@@ -287,6 +287,9 @@
 		--font-body: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 		--font-heading: Georgia, 'Times New Roman', serif;
 		--font-mono: ui-monospace, 'SF Mono', 'Cascadia Code', 'Roboto Mono', monospace;
+
+		/* Deepened shadow for the result-card hover lift (R3.1, BOH-29). */
+		--shadow-card-hover: 0 20px 32px -12px rgba(20, 17, 11, 0.28);
 
 		--text-sm: 0.875rem;
 		--text-base: 1rem;
@@ -608,6 +611,24 @@
 		border: 1px solid var(--color-border);
 		border-radius: var(--radius);
 		padding: var(--space-4);
+		transition:
+			transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1),
+			box-shadow 0.22s ease;
+	}
+
+	/* R3.1: hover lift + shadow deepen, gated so a reduced-motion user gets
+	   no transform/transition at all (only `no-preference` users see it). */
+	@media (prefers-reduced-motion: no-preference) {
+		:global(.result-card):hover {
+			transform: translateY(-6px);
+			box-shadow: var(--shadow-card-hover);
+		}
+	}
+
+	/* R3.2: monospace + tabular-figure treatment for numeric fields. */
+	.tabular {
+		font-family: var(--font-mono);
+		font-variant-numeric: tabular-nums;
 	}
 
 	.result-card .thumbnail {
